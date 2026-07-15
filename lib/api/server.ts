@@ -22,7 +22,44 @@ function safeMessage(payload: unknown, fallback: string) {
   ) {
     return payload.message;
   }
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "error" in payload &&
+    typeof payload.error === "string"
+  ) {
+    return payload.error;
+  }
   return fallback;
+}
+
+export async function publicBackendRequest<T>(
+  path: string,
+  init: RequestInit = {},
+): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(new URL(path, backendBaseUrl), {
+      ...init,
+      cache: "no-store",
+      signal: init.signal ?? AbortSignal.timeout(30_000),
+      headers: {
+        Accept: "application/json",
+        ...(init.body ? { "Content-Type": "application/json" } : {}),
+        ...init.headers,
+      },
+    });
+  } catch {
+    throw new BackendApiError(502, "No pudimos conectar con el backend.");
+  }
+  const contentType = response.headers.get("content-type") ?? "";
+  const payload: unknown = contentType.includes("application/json")
+    ? await response.json()
+    : null;
+  if (!response.ok) {
+    throw new BackendApiError(response.status, safeMessage(payload, "No pudimos completar la operación."));
+  }
+  return payload as T;
 }
 
 export async function backendRequest<T>(

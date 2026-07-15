@@ -1,14 +1,14 @@
 import { redirect } from "next/navigation";
 import { ReceptionWorkspace } from "@/features/reception/reception-workspace";
 import { getSession } from "@/lib/session";
-import { detectStaffRole } from "@/lib/staff-role";
+import { getStaffContext, hasRole } from "@/lib/staff-context";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReceptionPage() {
   const session = await getSession();
   if (!session) redirect("/login");
-  if ((await detectStaffRole()) !== "reception") redirect("/");
+  if (!hasRole(await getStaffContext(), "RECEPCIONISTA")) redirect("/");
 
   return (
     <ReceptionWorkspace

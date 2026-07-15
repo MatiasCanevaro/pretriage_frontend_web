@@ -1,8 +1,7 @@
 # Staff access and invitation frontend plan
 
-Status: proposed frontend work. The current delivery implements reception and the
-backend-supported portion of the doctor flow; it does not yet implement the
-membership or invitation features below.
+Status: first membership and hospital-administration vertical slice implemented.
+The remaining security and operational work is listed below.
 
 The authoritative domain proposal is maintained in the backend document
 `docs/10-staff-identity-memberships-and-invitations.md`.
@@ -139,3 +138,24 @@ must not enter logs, analytics, or client persistence.
   persistent browser storage.
 - All new routes pass typecheck, lint, production build, and Next.js runtime error
   checks.
+
+## Implemented in this delivery
+
+- `/api/staff/me` replaces reception-first role probing.
+- A dual-role or multi-hospital account sees a workspace selector after login.
+- Reception, medicine and hospital administration authorize from active scoped
+  memberships.
+- `/admin/hospital` lists personnel, invitations and recent audit activity; it can
+  invite staff, suspend/reactivate memberships and revoke pending invitations.
+- `/invitaciones/aceptar` consumes the one-time secret from the URL fragment, moves
+  it immediately into memory and removes it from browser history. New users choose
+  their password; existing users accept with their authenticated account.
+- Browser calls use privacy-safe BFF routes and TanStack Query owns admin remote
+  state.
+
+The current development backend has no mail provider. The panel therefore displays
+the secret once so a developer can construct `/invitaciones/aceptar#<secreto>`.
+Production must send that fragment link through a configured mail adapter and must
+remove the manual secret display. Authorization Code + PKCE, access-token audience,
+MFA, mail delivery, platform screens, room/specialty administration and patient
+claiming remain pending.

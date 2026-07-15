@@ -25,6 +25,18 @@ Implement reception first. Doctor refresh-sensitive paths remain blocked by back
 Verification: npm run typecheck, npm run lint, npm run build.
 Never commit credentials, tokens, or real patient data.
 
+## Staff access development
+
+After login, `/api/staff/me` resolves all active hospital workspaces. Existing
+reception/doctor records are migrated lazily by the backend. Hospital admins use
+`/admin/hospital`; invitation acceptance uses
+`/invitaciones/aceptar#<one-time-secret>`. The fragment is removed from browser
+history as soon as the page loads and is never persisted by the frontend.
+
+The development backend currently returns the invitation secret once because no
+mail adapter is configured. Do not paste real invitation secrets into issue
+trackers, logs or committed files.
+
 ## Provisional authentication
 
 The login page sends credentials to the server-side route

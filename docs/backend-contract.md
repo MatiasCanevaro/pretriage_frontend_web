@@ -4,11 +4,11 @@
 - Base URL: `http://localhost:8080`
 - Live OpenAPI: `http://localhost:8080/v3/api-docs`
 - Exported snapshot: `contracts/pretriage-openapi.json`
-- Snapshot date: 2026-07-13
-- Snapshot SHA-256: `91910e0e6d0d90480af2996dd3a2c1a31eb7ecd5e3ee18fdceb66fe3ebf62696`
+- Snapshot date: 2026-07-14
+- Snapshot SHA-256: `ec607d7b6df0e06bb8863847dbde87d3293ce7bf88625b2b4893a7341b3d3b1f`
 - OpenAPI version: 3.1.0
 - API title/version: Pretriage API / v1
-- Snapshot size: 43 paths and 36 schemas
+- Snapshot size: 58 paths and 48 schemas
 
 The running backend, its source, and the exported OpenAPI are authoritative. Do not pin frontend work to a backend commit and never invent missing contracts.
 
@@ -130,3 +130,10 @@ The confirmed product flow also requires the following contracts, which are not 
 - Add a contract sync/check command so CI detects drift from the running backend export.
 - Replace the provisional backend-login session according to `docs/authentication-hardening-plan.md`.
 - Keep doctor UI limited to backend-supported behavior until the blocker contracts above are implemented.
+
+## Staff membership contract
+
+The backend now exposes `/api/staff/me` and hospital-scoped membership/invitation
+administration. The frontend no longer infers one global role by probing reception
+and medicine endpoints. See `docs/staff-access-and-invitations-plan.md` for routes,
+implemented scope and the remaining Universal Login/mail hardening work.

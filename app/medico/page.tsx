@@ -1,14 +1,14 @@
 import { redirect } from "next/navigation";
 import { DoctorWorkspace } from "@/features/doctor/doctor-workspace";
 import { getSession } from "@/lib/session";
-import { detectStaffRole } from "@/lib/staff-role";
+import { getStaffContext, hasRole } from "@/lib/staff-context";
 
 export const dynamic = "force-dynamic";
 
 export default async function DoctorPage() {
   const session = await getSession();
   if (!session) redirect("/login");
-  if ((await detectStaffRole()) !== "doctor") redirect("/");
+  if (!hasRole(await getStaffContext(), "MEDICO")) redirect("/");
 
   return (
     <DoctorWorkspace

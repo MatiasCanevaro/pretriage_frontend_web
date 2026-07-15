@@ -56,6 +56,15 @@ select:focus-visible, textarea:focus-visible {
   text-align: center;
 }
 .login-card .brand { justify-content: center; margin-bottom: 34px; }
+.workspace-card { width: min(100%, 760px); padding: 40px; border: 1px solid var(--line); border-radius: 24px; background: var(--surface); box-shadow: var(--shadow); text-align: center; }
+.workspace-card .brand { justify-content: center; margin-bottom: 24px; }
+.workspace-card h1 { margin: 6px 0 10px; }
+.workspace-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 26px 0; text-align: left; }
+.workspace-option { display: grid; gap: 7px; padding: 18px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none; }
+.workspace-option:hover { border-color: var(--blue); background: var(--blue-soft); }
+.workspace-option span { color: var(--muted); font-size: .78rem; text-transform: capitalize; }
+.role-options { display: flex; flex-wrap: wrap; gap: 12px 20px; }
+.secret-code { display: inline-block; max-width: 100%; margin-top: 7px; overflow-wrap: anywhere; user-select: all; }
 .login-card h1 { margin: 8px 0 12px; font-size: clamp(1.75rem, 4vw, 2.35rem); line-height: 1.12; }
 .login-card .muted { margin: 0 auto 28px; max-width: 390px; }
 .login-form { display: grid; gap: 18px; margin-top: 26px; text-align: left; }

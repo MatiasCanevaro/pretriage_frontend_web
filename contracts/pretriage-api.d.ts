@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/hospitales/{hospitalId}/membresias/{membresiaId}/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["actualizarRoles"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/register": {
         parameters: {
             query?: never;
@@ -126,6 +142,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["cancelar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/platform/hospitales/{hospitalId}/primer-admin/invitaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["primerAdmin"];
         delete?: never;
         options?: never;
         head?: never;
@@ -388,6 +420,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/invitaciones/{token}/registro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["registrar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invitaciones/{token}/aceptar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["aceptar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/chat": {
         parameters: {
             query?: never;
@@ -430,6 +494,54 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["seleccionarHospital"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/hospitales/{hospitalId}/invitaciones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["invitaciones"];
+        put?: never;
+        post: operations["invitar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/hospitales/{hospitalId}/membresias/{membresiaId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["actualizarEstado"];
+        trace?: never;
+    };
+    "/api/staff/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["me"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -548,6 +660,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/medico/pacientes/{pacienteId}/ultimos-reportes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerHistorialClinicoMasActuales"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/medico/pacientes/{pacienteId}/historial-clinico": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerHistorialClinico"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/medico/pacientes/{pacienteId}/historial-clinico/{estudioId}/reporte": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerMetadataDeUnEstudioClinico"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/medico/pacientes/{pacienteId}/historial-clinico/{estudioId}/archivo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["descargarArchivoEstudioClinico"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/medico/atenciones": {
         parameters: {
             query?: never;
@@ -572,6 +748,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["obtenerAsignaciones"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invitaciones/{token}/resumen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["resumen"];
         put?: never;
         post?: never;
         delete?: never;
@@ -676,6 +868,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/hospitales/{hospitalId}/personal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["personal"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/hospitales/{hospitalId}/auditoria": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["auditoria"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/obrasocial/{idObraSocial}": {
         parameters: {
             query?: never;
@@ -692,6 +916,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/hospitales/{hospitalId}/invitaciones/{invitacionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["revocar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -702,6 +942,19 @@ export interface components {
             plan: string;
             /** Format: date */
             fechaVencimiento: string;
+        };
+        ActualizarRolesRequest: {
+            roles: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+        };
+        MembresiaResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            hospitalId?: number;
+            hospitalNombre?: string;
+            /** @enum {string} */
+            estado?: "INVITADA" | "ACTIVA" | "SUSPENDIDA" | "REVOCADA";
+            roles?: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
         };
         RegisterRequest: {
             nombre: string;
@@ -841,6 +1094,32 @@ export interface components {
             fechaHoraCancelacion?: string;
             estimacion?: components["schemas"]["TiempoEstimadoAtencionResponse"];
         };
+        CrearInvitacionRequest: {
+            /** Format: email */
+            email: string;
+            roles: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+            matricula?: string;
+            especialidadIds?: number[];
+        };
+        InvitacionResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            hospitalId?: number;
+            hospitalNombre?: string;
+            email?: string;
+            /** @enum {string} */
+            estado?: "PENDIENTE" | "ACEPTADA" | "EXPIRADA" | "REVOCADA";
+            roles?: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+            especialidadIds?: number[];
+            matricula?: string;
+            /** Format: date-time */
+            venceEn?: string;
+            /** Format: date-time */
+            fechaCreacion?: string;
+            emailEnviado?: boolean;
+            tokenEntregaUnica?: string;
+        };
         EstadoConsultaPacienteDTO: {
             /** Format: int64 */
             consultaId?: number;
@@ -886,6 +1165,20 @@ export interface components {
             provincia?: string;
             coordenada?: components["schemas"]["Coordenada"];
         };
+        EstudioClinico: {
+            /** Format: int64 */
+            id?: number;
+            paciente?: unknown;
+            nombreArchivo?: string;
+            tipoArchivo?: string;
+            extensionArchivo?: string;
+            descripcion?: string;
+            /** Format: date-time */
+            fechaSubida?: string;
+            /** Format: int64 */
+            tamanoArchivo?: number;
+            rutaArchivo?: string;
+        };
         ObraSocial: {
             /** Format: int64 */
             id?: number;
@@ -899,6 +1192,7 @@ export interface components {
             usuarioAuth?: components["schemas"]["UsuarioAuth"];
             credenciales?: components["schemas"]["Credencial"][];
             coordenadaActual?: components["schemas"]["Coordenada"];
+            historialClinico?: components["schemas"]["EstudioClinico"][];
             /** @enum {string} */
             generoBiologico?: "MASCULINO" | "FEMENINO" | "X";
             /** @enum {string} */
@@ -966,6 +1260,14 @@ export interface components {
             email?: string;
             password: string;
         };
+        RegistrarInvitadoRequest: {
+            nombre: string;
+            apellido: string;
+            numeroDocumento: string;
+            /** @enum {string} */
+            tipoDocumento: "LIBRETA_CIVICA" | "LIBRETA_ENROLAMIENTO" | "DNI";
+            password: string;
+        };
         ChatDTO: {
             /** Format: int64 */
             id?: number;
@@ -990,6 +1292,18 @@ export interface components {
         SeleccionHospitalRequest: {
             placeId: string;
             codigoEspecialidad: string;
+        };
+        ActualizarMembresiaRequest: {
+            /** @enum {string} */
+            estado: "INVITADA" | "ACTIVA" | "SUSPENDIDA" | "REVOCADA";
+        };
+        StaffMeResponse: {
+            id?: string;
+            nombre?: string;
+            apellido?: string;
+            email?: string;
+            administradorPlataforma?: boolean;
+            membresias?: components["schemas"]["MembresiaResponse"][];
         };
         PacienteRecepcionDTO: {
             /** Format: int64 */
@@ -1032,6 +1346,21 @@ export interface components {
             /** Format: date */
             fechaVencimiento?: string;
         };
+        EstudioClinicoDTO: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            pacienteId?: number;
+            nombreArchivo?: string;
+            tipoArchivo?: string;
+            extensionArchivo?: string;
+            descripcion?: string;
+            /** Format: date-time */
+            fechaSubida?: string;
+            /** Format: int64 */
+            tamanoArchivo?: number;
+            rutaArchivo?: string;
+        };
         AtencionMedicaDTO: {
             /** Format: int64 */
             id?: number;
@@ -1060,6 +1389,20 @@ export interface components {
             codigoEspecialidad?: string;
             nombreEspecialidad?: string;
         };
+        InvitacionResumenResponse: {
+            /** Format: int64 */
+            hospitalId?: number;
+            hospitalNombre?: string;
+            email?: string;
+            /** @enum {string} */
+            estado?: "PENDIENTE" | "ACEPTADA" | "EXPIRADA" | "REVOCADA";
+            roles?: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+            especialidadIds?: number[];
+            matricula?: string;
+            /** Format: date-time */
+            venceEn?: string;
+            cuentaExistente?: boolean;
+        };
         SalaDTO: {
             /** Format: int64 */
             id?: number;
@@ -1074,6 +1417,26 @@ export interface components {
         SseEmitter: {
             /** Format: int64 */
             timeout?: number;
+        };
+        PersonalResponse: {
+            /** Format: int64 */
+            membresiaId?: number;
+            nombre?: string;
+            apellido?: string;
+            email?: string;
+            /** @enum {string} */
+            estado?: "INVITADA" | "ACTIVA" | "SUSPENDIDA" | "REVOCADA";
+            roles?: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+        };
+        AuditoriaResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: date-time */
+            fecha?: string;
+            actor?: string;
+            accion?: string;
+            objetivo?: string;
+            resultado?: string;
         };
     };
     responses: never;
@@ -1186,6 +1549,33 @@ export interface operations {
                     "*/*": {
                         [key: string]: string;
                     };
+                };
+            };
+        };
+    };
+    actualizarRoles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+                membresiaId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActualizarRolesRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MembresiaResponse"];
                 };
             };
         };
@@ -1352,6 +1742,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdmisionRecepcionDetalleDTO"];
+                };
+            };
+        };
+    };
+    primerAdmin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CrearInvitacionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["InvitacionResponse"];
                 };
             };
         };
@@ -1741,6 +2157,54 @@ export interface operations {
             };
         };
     };
+    registrar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegistrarInvitadoRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MembresiaResponse"];
+                };
+            };
+        };
+    };
+    aceptar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MembresiaResponse"];
+                };
+            };
+        };
+    };
     iniciarChat: {
         parameters: {
             query?: never;
@@ -1806,6 +2270,101 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    invitaciones: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["InvitacionResponse"][];
+                };
+            };
+        };
+    };
+    invitar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CrearInvitacionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["InvitacionResponse"];
+                };
+            };
+        };
+    };
+    actualizarEstado: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+                membresiaId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActualizarMembresiaRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MembresiaResponse"];
+                };
+            };
+        };
+    };
+    me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StaffMeResponse"];
+                };
             };
         };
     };
@@ -1959,6 +2518,96 @@ export interface operations {
             };
         };
     };
+    obtenerHistorialClinicoMasActuales: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pacienteId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EstudioClinicoDTO"][];
+                };
+            };
+        };
+    };
+    obtenerHistorialClinico: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pacienteId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EstudioClinicoDTO"][];
+                };
+            };
+        };
+    };
+    obtenerMetadataDeUnEstudioClinico: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pacienteId: number;
+                estudioId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EstudioClinicoDTO"];
+                };
+            };
+        };
+    };
+    descargarArchivoEstudioClinico: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pacienteId: number;
+                estudioId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     obtenerHistorial: {
         parameters: {
             query?: never;
@@ -1995,6 +2644,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AsignacionMedicoDTO"][];
+                };
+            };
+        };
+    };
+    resumen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["InvitacionResumenResponse"];
                 };
             };
         };
@@ -2131,6 +2802,50 @@ export interface operations {
             };
         };
     };
+    personal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PersonalResponse"][];
+                };
+            };
+        };
+    };
+    auditoria: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AuditoriaResponse"][];
+                };
+            };
+        };
+    };
     eliminarObraSocialAdmin: {
         parameters: {
             query?: never;
@@ -2152,6 +2867,27 @@ export interface operations {
                         [key: string]: string;
                     };
                 };
+            };
+        };
+    };
+    revocar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+                invitacionId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
