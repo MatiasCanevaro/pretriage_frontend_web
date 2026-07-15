@@ -284,11 +284,12 @@ select:focus-visible, textarea:focus-visible {
 .priority-result strong { color: var(--red); }
 
 .queue-table { overflow: hidden; border: 1px solid var(--soft-line); border-radius: 11px; }
-.queue-row { display: grid; grid-template-columns: 58px minmax(150px, 1.6fr) minmax(115px, 1fr) minmax(90px, .8fr); gap: 14px; align-items: center; min-height: 52px; padding: 10px 15px; border-bottom: 1px solid var(--soft-line); font-size: .8rem; }
+.queue-row { display: grid; grid-template-columns: 58px minmax(180px, 1fr) 170px 105px; column-gap: 20px; align-items: center; min-height: 52px; padding: 10px 18px; border-bottom: 1px solid var(--soft-line); font-size: .8rem; }
+.queue-row > * { min-width: 0; }
 .queue-row:last-child { border-bottom: 0; }
 .queue-head { min-height: 40px; background: #f7f9fc; color: var(--muted); font-size: .68rem; font-weight: 680; text-transform: uppercase; letter-spacing: .04em; }
 .status-chip { width: fit-content; padding: 5px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-size: .7rem; font-weight: 650; }
-.priority-chip { width: fit-content; padding: 5px 8px; border-radius: 999px; background: #eef2f7; color: #42516a; font-size: .7rem; font-weight: 700; }
+.priority-chip { width: fit-content; max-width: 100%; padding: 5px 8px; border-radius: 999px; background: #eef2f7; color: #42516a; font-size: .7rem; font-weight: 700; line-height: 1.25; text-align: center; }
 .priority-critical { background: var(--red-soft); color: var(--red); }
 .priority-urgent { background: var(--amber-soft); color: #73501a; }
 .priority-normal { background: var(--blue-soft); color: var(--blue); }
@@ -340,7 +341,7 @@ select:focus-visible, textarea:focus-visible {
   .progress li:not(:last-child)::after { width: 18px; margin: 0 6px; }
   .progress li { font-size: 0; }
   .progress li span { font-size: .7rem; }
-  .queue-row { grid-template-columns: 45px 1fr .8fr; }
+  .queue-row { grid-template-columns: 38px minmax(100px, 1fr) minmax(105px, .8fr); column-gap: 10px; padding-inline: 12px; }
   .queue-row > :last-child { display: none; }
   .form-actions, .danger-zone, .session-controls { flex-wrap: wrap; }
 }
