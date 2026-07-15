@@ -427,10 +427,10 @@ export function DoctorWorkspace({
         {queue.isPending ? <div className="loading-card">Actualizando cola…</div> : null}
         {queue.data?.length ? (
           <div className="queue-table" role="table" aria-label="Cola médica">
-            <div className="queue-row queue-head" role="row"><span>Orden</span><span>Paciente</span><span>Código</span><span>Estado</span></div>
+            <div className="queue-row queue-head" role="row"><span>Orden</span><span>Paciente</span><span>Código</span><span>Prioridad</span><span>Estado</span></div>
             {queue.data.map((item, index) => (
               <div className="queue-row" role="row" key={item.consultaId}>
-                <strong>{index + 1}</strong><strong>{patientName(item)}</strong><span>{item.codigoLlamado ?? "—"}</span><span className="status-chip">{stateLabel(item.estadoConsulta)}</span>
+                <strong>{index + 1}</strong><strong>{patientName(item)}</strong><span>{item.codigoLlamado ?? "—"}</span><span className="priority-chip" data-priority={item.prioridad}>{priorityLabel(item.prioridad)}</span><span className="status-chip">{stateLabel(item.estadoConsulta)}</span>
               </div>
             ))}
           </div>

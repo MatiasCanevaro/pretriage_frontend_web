@@ -5,7 +5,7 @@
 - Live OpenAPI: `http://localhost:8080/v3/api-docs`
 - Exported snapshot: `contracts/pretriage-openapi.json`
 - Snapshot date: 2026-07-15
-- Snapshot SHA-256: `0e800c2e34bef59555b5e132486ae34d0705bf669657afdba542d0ecef0c38bd`
+- Snapshot SHA-256: `8add6437af6a78a0b1e8ece34161aaa9384e04332d1d518485b84b9f29fc9863`
 - OpenAPI version: 3.1.0
 - API title/version: Pretriage API / v1
 - Snapshot size: 61 paths and 53 schemas
@@ -116,7 +116,7 @@ The API supports the complete planned medical-session flow. During `EN_ATENCION`
 
 The confirmed product flow also requires the following contracts, which are not present in the current OpenAPI:
 
-- Return explicit backend-owned priority/order and wait-time fields for each queue row. Patient name, surname and calling code are now available to the authorized doctor.
+- Return explicit backend-owned relative-order and wait-time fields for each queue row. Priority, patient name, surname and calling code are available to the authorized doctor; the frontend never recalculates queue order.
 - Define whether notes and vital signs belong to this release; no request DTO currently accepts them.
 - Define typed `404` and `409` error bodies for recovery and concurrency cases. The OpenAPI currently documents statuses but not a shared error schema.
 

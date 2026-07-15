@@ -1359,6 +1359,8 @@ export interface components {
             salaId?: number;
             nombreSala?: string;
             /** @enum {string} */
+            prioridad?: "RIESGO_VITAL_INMEDIATO" | "MUY_URGENTE" | "URGENTE" | "NORMAL" | "NO_URGENTE";
+            /** @enum {string} */
             estadoConsulta?: "PENDIENTE" | "HOSPITAL_SELECCIONADO" | "PRETRIAGE_FINALIZADO" | "PRETRIAGE_EN_PROCESO" | "EN_COLA" | "LLAMADO" | "EN_ESPERA" | "ATRASADO" | "EN_ATENCION" | "FINALIZADA" | "CANCELADA";
         };
         LoginRequest: {
