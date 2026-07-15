@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/medico/sesiones/{sesionId}/consultas/{consultaId}/revision-prioridad": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["revisarPrioridad"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/hospitales/{hospitalId}/membresias/{membresiaId}/roles": {
         parameters: {
             query?: never;
@@ -660,6 +676,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/medico/sesiones/{sesionId}/consultas/{consultaId}/pretriaje": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerPretriaje"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/medico/sesiones/actual": {
         parameters: {
             query?: never;
@@ -958,6 +990,56 @@ export interface components {
             plan: string;
             /** Format: date */
             fechaVencimiento: string;
+        };
+        RevisionPrioridadRequest: {
+            /** @enum {string} */
+            decision: "CONFIRMAR" | "CORREGIR";
+            /** @enum {string} */
+            prioridad?: "RIESGO_VITAL_INMEDIATO" | "MUY_URGENTE" | "URGENTE" | "NORMAL" | "NO_URGENTE";
+            motivo?: string;
+        };
+        PretriajeConsultaDTO: {
+            /** Format: int64 */
+            consultaId?: number;
+            /** @enum {string} */
+            prioridadPreliminar?: "RIESGO_VITAL_INMEDIATO" | "MUY_URGENTE" | "URGENTE" | "NORMAL" | "NO_URGENTE";
+            /** @enum {string} */
+            prioridadEfectiva?: "RIESGO_VITAL_INMEDIATO" | "MUY_URGENTE" | "URGENTE" | "NORMAL" | "NO_URGENTE";
+            /** @enum {string} */
+            estadoRevision?: "PENDIENTE" | "CONFIRMADA" | "CORREGIDA";
+            resumenClinico?: components["schemas"]["TriageResultDTO"];
+            revisionActual?: components["schemas"]["RevisionPrioridadDTO"];
+        };
+        RevisionPrioridadDTO: {
+            /** Format: int64 */
+            id?: number;
+            /** @enum {string} */
+            decision?: "CONFIRMAR" | "CORREGIR";
+            /** @enum {string} */
+            prioridadAnterior?: "RIESGO_VITAL_INMEDIATO" | "MUY_URGENTE" | "URGENTE" | "NORMAL" | "NO_URGENTE";
+            /** @enum {string} */
+            prioridadNueva?: "RIESGO_VITAL_INMEDIATO" | "MUY_URGENTE" | "URGENTE" | "NORMAL" | "NO_URGENTE";
+            motivo?: string;
+            /** Format: date-time */
+            fechaHora?: string;
+        };
+        TriageResultDTO: {
+            motivoConsulta?: string;
+            sintomas?: string[];
+            inicio?: string;
+            evolucion?: string;
+            /** Format: int32 */
+            intensidadDolor?: number;
+            signosAlarma?: string[];
+            antecedentesRelevantes?: string[];
+            medicamentos?: string[];
+            alergias?: string[];
+            posibilidadEmbarazo?: string;
+            observaciones?: string;
+            /** Format: int32 */
+            nivelPrioridad?: number;
+            requiereAtencionInmediata?: boolean;
+            recomendacionSeguridad?: string;
         };
         ActualizarRolesRequest: {
             roles: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
@@ -1580,6 +1662,33 @@ export interface operations {
                     "*/*": {
                         [key: string]: string;
                     };
+                };
+            };
+        };
+    };
+    revisarPrioridad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sesionId: number;
+                consultaId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevisionPrioridadRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PretriajeConsultaDTO"];
                 };
             };
         };
@@ -2545,6 +2654,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ConsultaLlamadaDTO"][];
+                };
+            };
+        };
+    };
+    obtenerPretriaje: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sesionId: number;
+                consultaId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PretriajeConsultaDTO"];
                 };
             };
         };

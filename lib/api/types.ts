@@ -17,6 +17,8 @@ export type MedicalSession = ApiSchemas["SesionAtencionMedicaDTO"];
 export type CurrentMedicalState = ApiSchemas["SesionMedicaActualDTO"];
 export type QueueConsultation = ApiSchemas["ConsultaLlamadaDTO"];
 export type MedicalAttention = ApiSchemas["AtencionMedicaDTO"];
+export type ConsultationPretriage = ApiSchemas["PretriajeConsultaDTO"];
+export type PriorityReviewRequest = ApiSchemas["RevisionPrioridadRequest"];
 
 export type ReceptionBootstrap = {
   hospitals: ReceptionHospital[];

@@ -21,6 +21,7 @@ Requirements: Node.js 20+, npm, and the backend at http://localhost:8080.
 - app/api/auth/: provisional login/logout against the backend.
 
 Reception and doctor sessions recover their authoritative state from the backend after a reload.
+An in-attention doctor workspace also refetches the pretriage summary and priority-review state. Finalization stays disabled until that backend-owned review is confirmed or corrected.
 
 Verification: npm run typecheck, npm run lint, npm run build.
 Never commit credentials, tokens, or real patient data.

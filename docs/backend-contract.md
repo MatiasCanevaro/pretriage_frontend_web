@@ -5,10 +5,10 @@
 - Live OpenAPI: `http://localhost:8080/v3/api-docs`
 - Exported snapshot: `contracts/pretriage-openapi.json`
 - Snapshot date: 2026-07-15
-- Snapshot SHA-256: `d7f59cf3c6173e6da81ce9247ff5aee09662fd432ca9cc7a101822ee5ea691e9`
+- Snapshot SHA-256: `0e800c2e34bef59555b5e132486ae34d0705bf669657afdba542d0ecef0c38bd`
 - OpenAPI version: 3.1.0
 - API title/version: Pretriage API / v1
-- Snapshot size: 59 paths and 49 schemas
+- Snapshot size: 61 paths and 53 schemas
 
 The running backend, its source, and the exported OpenAPI are authoritative. Do not pin frontend work to a backend commit and never invent missing contracts.
 
@@ -104,24 +104,23 @@ GET  /api/medico/sesiones/{sesionId}/pacientes-disponibles
 POST /api/medico/sesiones/{sesionId}/llamar-proximo
 POST /api/medico/sesiones/{sesionId}/consultas/{consultaId}/presente
 POST /api/medico/sesiones/{sesionId}/consultas/{consultaId}/ausente
+GET  /api/medico/sesiones/{sesionId}/consultas/{consultaId}/pretriaje
+PUT  /api/medico/sesiones/{sesionId}/consultas/{consultaId}/revision-prioridad
 POST /api/medico/sesiones/{sesionId}/consultas/{consultaId}/finalizar
 GET  /api/medico/atenciones
 ```
 
-The existing API supports starting, recovering, pausing, resuming and closing a medical session; recovering a called or in-attention consultation; listing available consultation references; calling the next patient; marking present/absent; and finalizing the consultation.
+The API supports the complete planned medical-session flow. During `EN_ATENCION`, the frontend retrieves the normalized pretriage summary and requires the doctor to review priority before finalization. `CONFIRMAR` is one click. `CORREGIR` requires a different priority and accepts an optional reason of at most 500 characters. A genuine change is audited; an identical retry is idempotent. The review can be changed while attention remains open, and finalization is rejected with `409` while it is pending.
 
 ## Doctor blockers
 
 The confirmed product flow also requires the following contracts, which are not present in the current OpenAPI:
 
 - Return explicit backend-owned priority/order and wait-time fields for each queue row. Patient name, surname and calling code are now available to the authorized doctor.
-- Retrieve authorized patient and pretriage clinical detail before starting/finalizing care.
-- Confirm that the preliminary priority is correct or submit a corrected priority with an auditable reason.
-- Return the resulting priority and validation state after confirmation/correction.
 - Define whether notes and vital signs belong to this release; no request DTO currently accepts them.
 - Define typed `404` and `409` error bodies for recovery and concurrency cases. The OpenAPI currently documents statuses but not a shared error schema.
 
-`ConsultaLlamadaDTO` currently exposes only consultation ID, call code, patient ID, room data, and consultation state. `finalizar` accepts no request body, so it cannot carry priority confirmation or correction.
+`ConsultaLlamadaDTO` remains a compact queue/call projection. Clinical detail and priority review intentionally use their own consultation-scoped contract.
 
 ## Pending frontend contract work
 

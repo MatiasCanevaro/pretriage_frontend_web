@@ -297,6 +297,22 @@ select:focus-visible, textarea:focus-visible {
 .contract-blocker { padding: 17px; border: 1px dashed #e0ba64; border-radius: 11px; background: var(--amber-soft); }
 .contract-blocker strong { color: #6e4c15; font-size: .86rem; }
 .contract-blocker p { margin: 7px 0 0; color: #785e32; font-size: .78rem; line-height: 1.55; }
+.priority-review { display: grid; gap: 18px; padding: 19px; border: 1px solid var(--line); border-radius: 13px; background: #fbfcfe; }
+.priority-review-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.priority-review-heading h2 { margin: 4px 0 0; font-size: 1.05rem; }
+.priority-badge { width: fit-content; padding: 7px 10px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-size: .72rem; font-weight: 720; }
+.clinical-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; margin: 0; }
+.clinical-summary div { padding: 10px 0; border-bottom: 1px solid var(--soft-line); }
+.clinical-summary dt { margin-bottom: 4px; color: var(--muted); font-size: .7rem; font-weight: 650; }
+.clinical-summary dd { margin: 0; color: var(--ink); font-size: .8rem; line-height: 1.45; }
+.priority-decision { display: grid; gap: 12px; padding-top: 2px; }
+.priority-decision p { margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.5; }
+.priority-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.priority-correction { display: grid; gap: 14px; padding: 15px; border: 1px solid var(--soft-line); border-radius: 10px; background: white; }
+.priority-reviewed { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 15px; border: 1px solid #b9e0d1; border-radius: 10px; background: var(--green-soft); }
+.priority-reviewed > div { display: grid; gap: 3px; }
+.priority-reviewed strong { color: #146848; font-size: .8rem; }
+.priority-reviewed span { color: var(--ink); font-size: .76rem; }
 
 @media (max-width: 820px) {
   .staff-app { grid-template: 66px auto 1fr / 1fr; }
@@ -339,6 +355,9 @@ select:focus-visible, textarea:focus-visible {
   .topbar .brand > span:last-child { display: none; }
   .panel { padding: 19px; }
   .call-actions { grid-template-columns: 1fr; }
+  .clinical-summary { grid-template-columns: 1fr; }
+  .priority-review-heading, .priority-reviewed { align-items: stretch; flex-direction: column; }
+  .priority-actions { flex-direction: column-reverse; }
   .record-row { align-items: stretch; flex-direction: column; }
   .summary-list div { grid-template-columns: 1fr; gap: 5px; }
 }
