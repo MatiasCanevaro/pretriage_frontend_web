@@ -440,7 +440,7 @@ export function DoctorWorkspace({
             <div className="queue-row queue-head" role="row"><span>Orden</span><span>Paciente</span><span>Prioridad</span><span>Estado</span></div>
             {queue.data.map((item, index) => (
               <div className="queue-row" role="row" key={item.consultaId}>
-                <strong>{index + 1}</strong><strong>{patientName(item)}</strong><span className={`priority-chip ${priorityClass(item.prioridad)}`}>{priorityLabel(item.prioridad)}</span><span className="status-chip">{stateLabel(item.estadoConsulta)}</span>
+                <strong>{index + 1}</strong><strong>{patientName(item)}</strong><span className={`priority-chip ${priorityClass(item.prioridad)}`} data-priority={item.prioridad}>{priorityLabel(item.prioridad)}</span><span className="status-chip">{stateLabel(item.estadoConsulta)}</span>
               </div>
             ))}
           </div>
