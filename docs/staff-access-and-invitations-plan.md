@@ -47,9 +47,10 @@ current `detectStaffRole()` behavior must be replaced after `/api/staff/me` exis
 ## Workspace selection
 
 The selector uses two explicit steps: hospital first, then role. Navigation represents
-the chosen context, but the route is not authority. Specialty and room selection remain
-part of the medical-session start flow. Every BFF call forwards the session to backend
-endpoints that validate active membership and resource ownership.
+the chosen context, but the route is not authority. The medical workspace keeps that
+hospital fixed and asks only for specialty and room when starting a session. Every BFF
+call forwards the session to backend endpoints that validate active membership and
+resource ownership.
 
 No token, patient identity, DNI, clinical record, or invitation secret is stored in
 localStorage. A short-lived server session may retain a non-sensitive workspace

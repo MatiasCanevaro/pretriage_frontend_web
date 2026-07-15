@@ -33,7 +33,15 @@ function stateLabel(value?: string) {
   }[value ?? ""] ?? value ?? "Sin estado");
 }
 
-export function DoctorWorkspace({ userName }: { userName: string }) {
+export function DoctorWorkspace({
+  userName,
+  hospitalId,
+  hospitalName,
+}: {
+  userName: string;
+  hospitalId: number;
+  hospitalName: string;
+}) {
   const queryClient = useQueryClient();
   const [assignmentKey, setAssignmentKey] = useState("");
   const [roomId, setRoomId] = useState("");
@@ -45,14 +53,13 @@ export function DoctorWorkspace({ userName }: { userName: string }) {
     queryKey: ["doctor", "bootstrap"],
     queryFn: () => apiClient<DoctorBootstrap>(doctorApi, "bootstrap"),
   });
+  const assignments = useMemo(
+    () => bootstrap.data?.assignments.filter((item) => item.hospitalId === hospitalId) ?? [],
+    [bootstrap.data?.assignments, hospitalId],
+  );
   const selectedAssignment = useMemo(() => {
-    const [hospitalId, specialty] = assignmentKey.split("|");
-    return bootstrap.data?.assignments.find(
-      (item) =>
-        String(item.hospitalId) === hospitalId &&
-        item.codigoEspecialidad === specialty,
-    );
-  }, [assignmentKey, bootstrap.data?.assignments]);
+    return assignments.find((item) => item.codigoEspecialidad === assignmentKey);
+  }, [assignmentKey, assignments]);
   const rooms = useQuery({
     queryKey: [
       "doctor",
@@ -151,8 +158,8 @@ export function DoctorWorkspace({ userName }: { userName: string }) {
       section={section}
       sessionLabel={
         session
-          ? `${selectedAssignment?.nombreHospital ?? "Hospital"} · ${session.estado}`
-          : undefined
+          ? `${hospitalName} · ${session.estado}`
+          : hospitalName
       }
     >
       {content}
@@ -177,20 +184,25 @@ export function DoctorWorkspace({ userName }: { userName: string }) {
         <header className="page-heading">
           <p className="eyebrow">Inicio de jornada</p>
           <h1>Iniciar sesión médica</h1>
-          <p>Seleccioná una asignación y el consultorio desde el que vas a atender.</p>
+          <p>Vas a atender en <strong>{hospitalName}</strong>. Seleccioná tu especialidad y consultorio.</p>
         </header>
         <section className="panel form-panel">
           <label className="field">
-            <span>Hospital y especialidad</span>
+            <span>Especialidad</span>
             <select value={assignmentKey} onChange={(event) => { setAssignmentKey(event.target.value); setRoomId(""); }}>
               <option value="">Seleccionar</option>
-              {bootstrap.data.assignments.map((item) => (
-                <option key={`${item.hospitalId}-${item.codigoEspecialidad}`} value={`${item.hospitalId}|${item.codigoEspecialidad}`}>
-                  {item.nombreHospital} · {item.nombreEspecialidad}
+              {assignments.map((item) => (
+                <option key={item.codigoEspecialidad} value={item.codigoEspecialidad}>
+                  {item.nombreEspecialidad}
                 </option>
               ))}
             </select>
           </label>
+          {!assignments.length ? (
+            <div className="notice notice-warning">
+              No tenés especialidades médicas asignadas en {hospitalName}.
+            </div>
+          ) : null}
           <label className="field">
             <span>Consultorio</span>
             <select disabled={!selectedAssignment || rooms.isPending} value={roomId} onChange={(event) => setRoomId(event.target.value)}>
@@ -199,7 +211,7 @@ export function DoctorWorkspace({ userName }: { userName: string }) {
             </select>
           </label>
           <div className="notice notice-info">
-            Sólo se mostrarán pacientes de la especialidad, hospital y sala seleccionados.
+            Sólo se mostrarán pacientes de {hospitalName}, para la especialidad y el consultorio seleccionados.
           </div>
           <button className="button button-primary button-wide" disabled={!selectedAssignment || !roomId || startSession.isPending} onClick={() => startSession.mutate()}>
             {startSession.isPending ? "Iniciando…" : "Iniciar sesión"}

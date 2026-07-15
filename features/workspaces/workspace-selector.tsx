@@ -25,7 +25,7 @@ const roleDetails: Partial<Record<HospitalRole, { label: string; description: st
 
 function routeFor(role: HospitalRole, hospitalId: number) {
   if (role === "RECEPCIONISTA") return "/recepcion";
-  if (role === "MEDICO") return "/medico";
+  if (role === "MEDICO") return `/medico?hospitalId=${hospitalId}`;
   if (role === "ADMIN_HOSPITAL") return `/admin/hospital?hospitalId=${hospitalId}`;
   return null;
 }
