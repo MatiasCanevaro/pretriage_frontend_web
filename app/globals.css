@@ -284,15 +284,15 @@ select:focus-visible, textarea:focus-visible {
 .priority-result strong { color: var(--red); }
 
 .queue-table { overflow: hidden; border: 1px solid var(--soft-line); border-radius: 11px; }
-.queue-row { display: grid; grid-template-columns: 70px 1.5fr .85fr 1fr 1fr; gap: 14px; align-items: center; min-height: 52px; padding: 10px 15px; border-bottom: 1px solid var(--soft-line); font-size: .8rem; }
+.queue-row { display: grid; grid-template-columns: 58px minmax(150px, 1.6fr) minmax(115px, 1fr) minmax(90px, .8fr); gap: 14px; align-items: center; min-height: 52px; padding: 10px 15px; border-bottom: 1px solid var(--soft-line); font-size: .8rem; }
 .queue-row:last-child { border-bottom: 0; }
 .queue-head { min-height: 40px; background: #f7f9fc; color: var(--muted); font-size: .68rem; font-weight: 680; text-transform: uppercase; letter-spacing: .04em; }
 .status-chip { width: fit-content; padding: 5px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-size: .7rem; font-weight: 650; }
 .priority-chip { width: fit-content; padding: 5px 8px; border-radius: 999px; background: #eef2f7; color: #42516a; font-size: .7rem; font-weight: 700; }
-.priority-chip[data-priority="RIESGO_VITAL_INMEDIATO"], .priority-chip[data-priority="MUY_URGENTE"] { background: var(--red-soft); color: var(--red); }
-.priority-chip[data-priority="URGENTE"] { background: var(--amber-soft); color: #73501a; }
-.priority-chip[data-priority="NORMAL"] { background: var(--blue-soft); color: var(--blue); }
-.priority-chip[data-priority="NO_URGENTE"] { background: var(--green-soft); color: var(--green); }
+.priority-critical { background: var(--red-soft); color: var(--red); }
+.priority-urgent { background: var(--amber-soft); color: #73501a; }
+.priority-normal { background: var(--blue-soft); color: var(--blue); }
+.priority-low { background: var(--green-soft); color: var(--green); }
 .session-controls { display: flex; justify-content: flex-end; gap: 11px; }
 .call-panel { display: grid; gap: 22px; }
 .call-visual { display: grid; justify-items: center; gap: 8px; padding: 28px; border-radius: 14px; background: #f7faff; text-align: center; }
@@ -341,7 +341,7 @@ select:focus-visible, textarea:focus-visible {
   .progress li { font-size: 0; }
   .progress li span { font-size: .7rem; }
   .queue-row { grid-template-columns: 45px 1fr .8fr; }
-  .queue-row > :nth-child(3), .queue-row > :last-child { display: none; }
+  .queue-row > :last-child { display: none; }
   .form-actions, .danger-zone, .session-controls { flex-wrap: wrap; }
 }
 
