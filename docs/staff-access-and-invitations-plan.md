@@ -11,8 +11,9 @@ The authoritative domain proposal is maintained in the backend document
 - All staff use one authentication flow and one identity.
 - After login, the backend returns every active hospital membership and permitted
   workspace.
-- One workspace redirects automatically; several workspaces open a selector grouped
-  by hospital.
+- The workspace selector always remains available from `Espacios`; it never redirects
+  automatically. The user first chooses a hospital and then one of the supported roles
+  assigned to them in that hospital.
 - Staff roles are granted by invitation and cannot be selected through public
   registration.
 - Existing users accept a new hospital membership with their existing credentials.
@@ -22,10 +23,9 @@ The authoritative domain proposal is maintained in the backend document
 ## Planned routes
 
 ```text
-/                         workspace resolution
+/                         hospital and role selector
 /login                    shared authentication
 /invitaciones/aceptar     invitation summary and acceptance
-/seleccionar-espacio      hospital and role selector
 /recepcion                reception workflow
 /medico                   doctor workflow
 /admin/hospital           hospital administration
@@ -46,9 +46,10 @@ current `detectStaffRole()` behavior must be replaced after `/api/staff/me` exis
 
 ## Workspace selection
 
-The selector shows hospital, role, and relevant specialty. Navigation represents the
-chosen context, but the route is not authority. Every BFF call forwards the session
-to backend endpoints that validate active membership and resource ownership.
+The selector uses two explicit steps: hospital first, then role. Navigation represents
+the chosen context, but the route is not authority. Specialty and room selection remain
+part of the medical-session start flow. Every BFF call forwards the session to backend
+endpoints that validate active membership and resource ownership.
 
 No token, patient identity, DNI, clinical record, or invitation secret is stored in
 localStorage. A short-lived server session may retain a non-sensitive workspace
