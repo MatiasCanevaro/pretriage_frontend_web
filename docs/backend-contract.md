@@ -5,7 +5,7 @@
 - Live OpenAPI: `http://localhost:8080/v3/api-docs`
 - Exported snapshot: `contracts/pretriage-openapi.json`
 - Snapshot date: 2026-07-15
-- Snapshot SHA-256: `3eed4263cb09d88e97b90fa7986c21cbc51e8bb7d6ec79bf9f79deb3f17e6f9a`
+- Snapshot SHA-256: `d7f59cf3c6173e6da81ce9247ff5aee09662fd432ca9cc7a101822ee5ea691e9`
 - OpenAPI version: 3.1.0
 - API title/version: Pretriage API / v1
 - Snapshot size: 59 paths and 49 schemas
@@ -114,7 +114,7 @@ The existing API supports starting, recovering, pausing, resuming and closing a 
 
 The confirmed product flow also requires the following contracts, which are not present in the current OpenAPI:
 
-- Return queue rows with backend-owned priority/order, wait time, anonymous code, and only the patient identity fields authorized for the doctor.
+- Return explicit backend-owned priority/order and wait-time fields for each queue row. Patient name, surname and calling code are now available to the authorized doctor.
 - Retrieve authorized patient and pretriage clinical detail before starting/finalizing care.
 - Confirm that the preliminary priority is correct or submit a corrected priority with an auditable reason.
 - Return the resulting priority and validation state after confirmation/correction.

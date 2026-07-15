@@ -1271,6 +1271,8 @@ export interface components {
             codigoLlamado?: string;
             /** Format: int64 */
             pacienteId?: number;
+            nombrePaciente?: string;
+            apellidoPaciente?: string;
             /** Format: int64 */
             salaId?: number;
             nombreSala?: string;

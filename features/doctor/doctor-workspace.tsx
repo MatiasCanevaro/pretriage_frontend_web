@@ -33,6 +33,12 @@ function stateLabel(value?: string) {
   }[value ?? ""] ?? value ?? "Sin estado");
 }
 
+function patientName(consultation: QueueConsultation) {
+  return [consultation.nombrePaciente, consultation.apellidoPaciente]
+    .filter(Boolean)
+    .join(" ") || "Nombre no disponible";
+}
+
 export function DoctorWorkspace({
   userName,
   hospitalId,
@@ -244,11 +250,11 @@ export function DoctorWorkspace({
       <div className="page-stack narrow-stack">
         <header className="page-heading">
           <p className="eyebrow">{inAttention ? "Atención en curso" : "Paciente llamado"}</p>
-          <h1>{current.codigoLlamado ?? "Código no disponible"}</h1>
-          <p>Sala {current.nombreSala ?? session.salaId} · {stateLabel(current.estadoConsulta)}</p>
+          <h1>{patientName(current)}</h1>
+          <p>Código {current.codigoLlamado ?? "no disponible"} · Sala {current.nombreSala ?? session.salaId} · {stateLabel(current.estadoConsulta)}</p>
         </header>
         <section className="panel call-panel">
-          <div className="call-visual"><span>Estado</span><strong>{stateLabel(current.estadoConsulta)}</strong><small>Código anónimo {current.codigoLlamado}</small></div>
+          <div className="call-visual"><span>Estado</span><strong>{stateLabel(current.estadoConsulta)}</strong><small>Código {current.codigoLlamado}</small></div>
           {!inAttention ? (
             <div className="call-actions">
               <button className="button button-primary" disabled={consultationAction.isPending} onClick={() => consultationAction.mutate("presente")}>Paciente presente</button>
@@ -290,10 +296,10 @@ export function DoctorWorkspace({
         {queue.isPending ? <div className="loading-card">Actualizando cola…</div> : null}
         {queue.data?.length ? (
           <div className="queue-table" role="table" aria-label="Cola médica">
-            <div className="queue-row queue-head" role="row"><span>Orden</span><span>Código</span><span>Sala</span><span>Estado</span></div>
+            <div className="queue-row queue-head" role="row"><span>Orden</span><span>Paciente</span><span>Código</span><span>Estado</span></div>
             {queue.data.map((item, index) => (
               <div className="queue-row" role="row" key={item.consultaId}>
-                <strong>{index + 1}</strong><strong>{item.codigoLlamado}</strong><span>{item.nombreSala ?? "—"}</span><span className="status-chip">{stateLabel(item.estadoConsulta)}</span>
+                <strong>{index + 1}</strong><strong>{patientName(item)}</strong><span>{item.codigoLlamado ?? "—"}</span><span className="status-chip">{stateLabel(item.estadoConsulta)}</span>
               </div>
             ))}
           </div>
