@@ -5,7 +5,7 @@
 - Live OpenAPI: `http://localhost:8080/v3/api-docs`
 - Exported snapshot: `contracts/pretriage-openapi.json`
 - Snapshot date: 2026-07-14
-- Snapshot SHA-256: `ec607d7b6df0e06bb8863847dbde87d3293ce7bf88625b2b4893a7341b3d3b1f`
+- Snapshot SHA-256: `5b3f91d43e01fb5d5a1b1b5485bce0fe671895c2992163fecda277c6171ead0b`
 - OpenAPI version: 3.1.0
 - API title/version: Pretriage API / v1
 - Snapshot size: 58 paths and 48 schemas

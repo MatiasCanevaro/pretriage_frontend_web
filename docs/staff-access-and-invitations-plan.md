@@ -147,6 +147,9 @@ must not enter logs, analytics, or client persistence.
   memberships.
 - `/admin/hospital` lists personnel, invitations and recent audit activity; it can
   invite staff, suspend/reactivate memberships and revoke pending invitations.
+- Medical invitations capture registration number, national/provincial type and
+  issuing jurisdiction. Provincial jurisdiction uses the bundled Argentine
+  province catalog; national credentials are sent as `NACION`.
 - `/invitaciones/aceptar` consumes the one-time secret from the URL fragment, moves
   it immediately into memory and removes it from browser history. New users choose
   their password; existing users accept with their authenticated account.

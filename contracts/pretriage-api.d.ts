@@ -1099,6 +1099,9 @@ export interface components {
             email: string;
             roles: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
             matricula?: string;
+            /** @enum {string} */
+            tipoMatricula?: "NACIONAL" | "PROVINCIAL";
+            jurisdiccionMatricula?: string;
             especialidadIds?: number[];
         };
         InvitacionResponse: {
@@ -1113,6 +1116,9 @@ export interface components {
             roles?: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
             especialidadIds?: number[];
             matricula?: string;
+            /** @enum {string} */
+            tipoMatricula?: "NACIONAL" | "PROVINCIAL";
+            jurisdiccionMatricula?: string;
             /** Format: date-time */
             venceEn?: string;
             /** Format: date-time */
@@ -1399,6 +1405,9 @@ export interface components {
             roles?: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
             especialidadIds?: number[];
             matricula?: string;
+            /** @enum {string} */
+            tipoMatricula?: "NACIONAL" | "PROVINCIAL";
+            jurisdiccionMatricula?: string;
             /** Format: date-time */
             venceEn?: string;
             cuentaExistente?: boolean;
