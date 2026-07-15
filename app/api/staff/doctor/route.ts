@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { apiErrorResponse } from "@/lib/api/route";
 import { backendRequest } from "@/lib/api/server";
 import type {
+  CurrentMedicalState,
   DoctorAssignment,
   DoctorBootstrap,
   MedicalAttention,
@@ -24,11 +25,17 @@ export async function POST(request: Request) {
     const body = (await request.json()) as Body;
     switch (body.operation) {
       case "bootstrap": {
-        const [assignments, history] = await Promise.all([
+        const [assignments, history, current] = await Promise.all([
           backendRequest<DoctorAssignment[]>("/api/medico/asignaciones"),
           backendRequest<MedicalAttention[]>("/api/medico/atenciones"),
+          backendRequest<CurrentMedicalState>("/api/medico/sesiones/actual"),
         ]);
-        return NextResponse.json({ assignments, history } satisfies DoctorBootstrap);
+        return NextResponse.json({
+          assignments,
+          history,
+          session: current.sesion ?? null,
+          currentConsultation: current.consultaActual ?? null,
+        } satisfies DoctorBootstrap);
       }
       case "rooms": {
         const hospitalId = numberValue(body.hospitalId, "hospitalId");

@@ -45,21 +45,30 @@ export function DoctorWorkspace({
   const queryClient = useQueryClient();
   const [assignmentKey, setAssignmentKey] = useState("");
   const [roomId, setRoomId] = useState("");
-  const [session, setSession] = useState<MedicalSession | null>(null);
-  const [current, setCurrent] = useState<QueueConsultation | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const bootstrap = useQuery({
     queryKey: ["doctor", "bootstrap"],
     queryFn: () => apiClient<DoctorBootstrap>(doctorApi, "bootstrap"),
   });
+  const session = bootstrap.data?.session ?? null;
+  const current = bootstrap.data?.currentConsultation ?? null;
   const assignments = useMemo(
     () => bootstrap.data?.assignments.filter((item) => item.hospitalId === hospitalId) ?? [],
     [bootstrap.data?.assignments, hospitalId],
   );
   const selectedAssignment = useMemo(() => {
-    return assignments.find((item) => item.codigoEspecialidad === assignmentKey);
-  }, [assignmentKey, assignments]);
+    const targetHospitalId = session?.hospitalId ?? hospitalId;
+    const targetSpecialty = session?.codigoEspecialidad ?? assignmentKey;
+    return bootstrap.data?.assignments.find(
+      (item) =>
+        item.hospitalId === targetHospitalId &&
+        item.codigoEspecialidad === targetSpecialty,
+    );
+  }, [assignmentKey, bootstrap.data?.assignments, hospitalId, session]);
+  const activeHospitalName = session
+    ? selectedAssignment?.nombreHospital ?? hospitalName
+    : hospitalName;
   const rooms = useQuery({
     queryKey: [
       "doctor",
@@ -86,16 +95,23 @@ export function DoctorWorkspace({
     refetchInterval: 5_000,
   });
 
+  const updateRemoteState = (
+    patch: Pick<DoctorBootstrap, "session" | "currentConsultation">,
+  ) => {
+    queryClient.setQueryData<DoctorBootstrap>(["doctor", "bootstrap"], (data) =>
+      data ? { ...data, ...patch } : data,
+    );
+  };
+
   const startSession = useMutation({
     mutationFn: () =>
       apiClient<MedicalSession>(doctorApi, "startSession", {
         hospitalId: selectedAssignment?.hospitalId,
         specialty: selectedAssignment?.codigoEspecialidad,
         roomId: Number(roomId),
-      }),
+    }),
     onSuccess: (created) => {
-      setSession(created);
-      setCurrent(null);
+      updateRemoteState({ session: created, currentConsultation: null });
       setFeedback(null);
     },
   });
@@ -104,14 +120,15 @@ export function DoctorWorkspace({
       apiClient<MedicalSession>(doctorApi, "sessionAction", {
         sessionId: session?.id,
         action,
-      }),
+    }),
     onSuccess: (updated) => {
-      setCurrent(null);
       if (updated.estado === "FINALIZADA") {
-        setSession(null);
+        updateRemoteState({ session: null, currentConsultation: null });
         setAssignmentKey("");
         setRoomId("");
-      } else setSession(updated);
+      } else {
+        updateRemoteState({ session: updated, currentConsultation: null });
+      }
       void queryClient.invalidateQueries({ queryKey: ["doctor"] });
     },
   });
@@ -119,9 +136,9 @@ export function DoctorWorkspace({
     mutationFn: () =>
       apiClient<QueueConsultation>(doctorApi, "callNext", {
         sessionId: session?.id,
-      }),
+    }),
     onSuccess: (called) => {
-      setCurrent(called);
+      updateRemoteState({ session, currentConsultation: called });
       setFeedback(null);
       void queue.refetch();
     },
@@ -135,10 +152,10 @@ export function DoctorWorkspace({
       }),
     onSuccess: (updated, action) => {
       if (action === "presente") {
-        setCurrent(updated);
+        updateRemoteState({ session, currentConsultation: updated });
         setFeedback("Presencia confirmada. La atención quedó iniciada.");
       } else {
-        setCurrent(null);
+        updateRemoteState({ session, currentConsultation: null });
         setFeedback(
           action === "ausente"
             ? "Paciente marcado como ausente y devuelto al flujo definido por backend."
@@ -158,8 +175,8 @@ export function DoctorWorkspace({
       section={section}
       sessionLabel={
         session
-          ? `${hospitalName} · ${session.estado}`
-          : hospitalName
+          ? `${activeHospitalName} · ${session.estado}`
+          : activeHospitalName
       }
     >
       {content}
@@ -184,7 +201,7 @@ export function DoctorWorkspace({
         <header className="page-heading">
           <p className="eyebrow">Inicio de jornada</p>
           <h1>Iniciar sesión médica</h1>
-          <p>Vas a atender en <strong>{hospitalName}</strong>. Seleccioná tu especialidad y consultorio.</p>
+          <p>Vas a atender en <strong>{activeHospitalName}</strong>. Seleccioná tu especialidad y consultorio.</p>
         </header>
         <section className="panel form-panel">
           <label className="field">
@@ -200,7 +217,7 @@ export function DoctorWorkspace({
           </label>
           {!assignments.length ? (
             <div className="notice notice-warning">
-              No tenés especialidades médicas asignadas en {hospitalName}.
+              No tenés especialidades médicas asignadas en {activeHospitalName}.
             </div>
           ) : null}
           <label className="field">
@@ -211,7 +228,7 @@ export function DoctorWorkspace({
             </select>
           </label>
           <div className="notice notice-info">
-            Sólo se mostrarán pacientes de {hospitalName}, para la especialidad y el consultorio seleccionados.
+            Sólo se mostrarán pacientes de {activeHospitalName}, para la especialidad y el consultorio seleccionados.
           </div>
           <button className="button button-primary button-wide" disabled={!selectedAssignment || !roomId || startSession.isPending} onClick={() => startSession.mutate()}>
             {startSession.isPending ? "Iniciando…" : "Iniciar sesión"}
@@ -292,9 +309,6 @@ export function DoctorWorkspace({
         )}
         <button className="button button-danger-ghost" disabled={sessionAction.isPending} onClick={() => sessionAction.mutate("cerrar")}>Cerrar sesión</button>
         <ErrorNotice error={sessionAction.error} />
-      </div>
-      <div className="notice notice-warning">
-        Si recargás la página, el backend actual no permite recuperar esta sesión médica. Finalizá o mantené abierta esta pestaña.
       </div>
     </div>,
   );

@@ -20,7 +20,7 @@ Requirements: Node.js 20+, npm, and the backend at http://localhost:8080.
 - app/api/staff/: privacy-safe BFF routes. Browser code never receives bearer tokens.
 - app/api/auth/: provisional login/logout against the backend.
 
-Implement reception first. Doctor refresh-sensitive paths remain blocked by backend contracts.
+Reception and doctor sessions recover their authoritative state from the backend after a reload.
 
 Verification: npm run typecheck, npm run lint, npm run build.
 Never commit credentials, tokens, or real patient data.

@@ -4,11 +4,11 @@
 - Base URL: `http://localhost:8080`
 - Live OpenAPI: `http://localhost:8080/v3/api-docs`
 - Exported snapshot: `contracts/pretriage-openapi.json`
-- Snapshot date: 2026-07-14
-- Snapshot SHA-256: `5b3f91d43e01fb5d5a1b1b5485bce0fe671895c2992163fecda277c6171ead0b`
+- Snapshot date: 2026-07-15
+- Snapshot SHA-256: `3eed4263cb09d88e97b90fa7986c21cbc51e8bb7d6ec79bf9f79deb3f17e6f9a`
 - OpenAPI version: 3.1.0
 - API title/version: Pretriage API / v1
-- Snapshot size: 58 paths and 48 schemas
+- Snapshot size: 59 paths and 49 schemas
 
 The running backend, its source, and the exported OpenAPI are authoritative. Do not pin frontend work to a backend commit and never invent missing contracts.
 
@@ -95,6 +95,7 @@ Reception finalization may invoke the backend AI provider. The backend bounds th
 ```http
 GET  /api/medico/asignaciones
 GET  /api/hospitales/{hospitalId}/salas?codigoEspecialidad={codigo}
+GET  /api/medico/sesiones/actual
 POST /api/medico/sesiones
 POST /api/medico/sesiones/{sesionId}/pausar
 POST /api/medico/sesiones/{sesionId}/reanudar
@@ -107,14 +108,12 @@ POST /api/medico/sesiones/{sesionId}/consultas/{consultaId}/finalizar
 GET  /api/medico/atenciones
 ```
 
-The existing API supports starting, pausing, resuming and closing a medical session; listing available consultation references; calling the next patient; marking present/absent; and finalizing the consultation.
+The existing API supports starting, recovering, pausing, resuming and closing a medical session; recovering a called or in-attention consultation; listing available consultation references; calling the next patient; marking present/absent; and finalizing the consultation.
 
 ## Doctor blockers
 
 The confirmed product flow also requires the following contracts, which are not present in the current OpenAPI:
 
-- Retrieve the authenticated doctor's active or paused session after a reload.
-- Retrieve the currently called or in-attention consultation for that session.
 - Return queue rows with backend-owned priority/order, wait time, anonymous code, and only the patient identity fields authorized for the doctor.
 - Retrieve authorized patient and pretriage clinical detail before starting/finalizing care.
 - Confirm that the preliminary priority is correct or submit a corrected priority with an auditable reason.

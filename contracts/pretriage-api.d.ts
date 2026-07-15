@@ -660,6 +660,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/medico/sesiones/actual": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerSesionActual"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/medico/pacientes/{pacienteId}/ultimos-reportes": {
         parameters: {
             query?: never;
@@ -1351,6 +1367,10 @@ export interface components {
             plan?: string;
             /** Format: date */
             fechaVencimiento?: string;
+        };
+        SesionMedicaActualDTO: {
+            sesion?: components["schemas"]["SesionAtencionMedicaDTO"];
+            consultaActual?: components["schemas"]["ConsultaLlamadaDTO"];
         };
         EstudioClinicoDTO: {
             /** Format: int64 */
@@ -2523,6 +2543,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ConsultaLlamadaDTO"][];
+                };
+            };
+        };
+    };
+    obtenerSesionActual: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SesionMedicaActualDTO"];
                 };
             };
         };

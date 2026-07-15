@@ -133,6 +133,7 @@ must not enter logs, analytics, or client persistence.
 
 - A dual-role account can choose reception or medicine after one login.
 - A doctor added to another hospital reuses the same account and sees both hospitals.
+- Reloading the medical workspace restores an active or paused session and its current consultation.
 - An unauthorized route redirects without hiding a backend authorization failure.
 - An invitation mutation cannot be submitted twice while pending.
 - Admin controls are limited to memberships returned for the selected hospital.
