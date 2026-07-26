@@ -4,11 +4,11 @@
 - Base URL: `http://localhost:8080`
 - Live OpenAPI: `http://localhost:8080/v3/api-docs`
 - Exported snapshot: `contracts/pretriage-openapi.json`
-- Snapshot date: 2026-07-15
-- Snapshot SHA-256: `8add6437af6a78a0b1e8ece34161aaa9384e04332d1d518485b84b9f29fc9863`
+- Snapshot date: 2026-07-18
+- Snapshot SHA-256: `2b364527cf045e416fb06dc502a54eeacc560012ff61aabede6f48c9775c563c`
 - OpenAPI version: 3.1.0
 - API title/version: Pretriage API / v1
-- Snapshot size: 61 paths and 53 schemas
+- Snapshot size: 63 paths and 54 schemas
 
 The running backend, its source, and the exported OpenAPI are authoritative. Do not pin frontend work to a backend commit and never invent missing contracts.
 
@@ -135,3 +135,51 @@ The backend now exposes `/api/staff/me` and hospital-scoped membership/invitatio
 administration. The frontend no longer infers one global role by probing reception
 and medicine endpoints. See `docs/staff-access-and-invitations-plan.md` for routes,
 implemented scope and the remaining Universal Login/mail hardening work.
+
+After login, one active membership redirects directly to its primary module; several
+memberships show only a hospital selector. Roles are capabilities in the shared
+hospital navigation rather than a second workspace choice.
+
+Invitation administration additionally supports:
+
+```http
+POST /api/admin/hospitales/{hospitalId}/invitaciones/{invitacionId}/reenviar
+GET  /api/platform/hospitales
+```
+
+Reissuing rotates the token and expiry. In local adapter mode the authorized admin
+receives `tokenEntregaUnica`; in SMTP mode it is always null. Delivery attempts are
+reported through `emailEnviado`, `ultimoIntentoEnvio` and
+`cantidadIntentosEnvio`. Persistent outbox processing and Universal Login remain
+production-hardening work.
+
+For a new account, `POST /api/invitaciones/{token}/registro` requires a password
+between 8 and 72 characters containing uppercase, lowercase, numeric and symbol
+characters. Password confirmation is a frontend-only check and is never sent to or
+stored by the backend.
+
+Registration is retry-safe when Auth0 contains the invited identity but the local
+account was not persisted: the backend validates the submitted credentials, reuses
+the Auth0 subject and completes the local account. Document conflicts are rejected
+before creating the external identity.
+
+Hospital administration also includes medical coordination. The former
+`COORDINADOR_MEDICO` value was removed from the public contract and existing data is
+converted to `ADMIN_HOSPITAL` during backend startup.
+
+Hospital administrators manage the specialties offered by their hospital and its
+rooms through:
+
+```http
+GET    /api/admin/hospitales/{hospitalId}/configuracion
+POST   /api/admin/hospitales/{hospitalId}/configuracion/especialidades/{especialidadId}
+DELETE /api/admin/hospitales/{hospitalId}/configuracion/especialidades/{especialidadId}
+POST   /api/admin/hospitales/{hospitalId}/configuracion/salas
+PUT    /api/admin/hospitales/{hospitalId}/configuracion/salas/{salaId}
+PATCH  /api/admin/hospitales/{hospitalId}/configuracion/salas/{salaId}/estado
+```
+
+Specialties remain a global catalog: hospital administration only enables or
+disables an association. Rooms are hospital-owned and are deactivated instead of
+deleted so historical medical sessions retain their references. A specialty cannot
+be disabled while it has active rooms.

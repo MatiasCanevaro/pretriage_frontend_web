@@ -34,9 +34,10 @@ reception/doctor records are migrated lazily by the backend. Hospital admins use
 `/invitaciones/aceptar#<one-time-secret>`. The fragment is removed from browser
 history as soon as the page loads and is never persisted by the frontend.
 
-The development backend currently returns the invitation secret once because no
-mail adapter is configured. Do not paste real invitation secrets into issue
-trackers, logs or committed files.
+The backend uses `LocalInvitationEmailAdapter` by default and returns the invitation
+secret once for local handoff. SMTP mode sends the fragment link and never exposes
+the secret in the administrative response. Do not paste invitation secrets into
+issue trackers, logs or committed files.
 
 ## Provisional authentication
 

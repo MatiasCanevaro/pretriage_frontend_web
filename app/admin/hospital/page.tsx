@@ -14,5 +14,5 @@ export default async function HospitalAdminPage({ searchParams }: { searchParams
     item.roles.includes("ADMIN_HOSPITAL") &&
     (!Number.isSafeInteger(selectedHospitalId) || item.hospitalId === selectedHospitalId));
   if (!membership) redirect("/");
-  return <HospitalAdminWorkspace hospitalId={membership.hospitalId} hospitalName={membership.hospitalNombre} userName={session.user.name ?? session.user.email ?? "Administrador"} />;
+  return <HospitalAdminWorkspace hospitalId={membership.hospitalId} hospitalName={membership.hospitalNombre} roles={membership.roles} userName={session.user.name ?? session.user.email ?? "Administrador"} />;
 }

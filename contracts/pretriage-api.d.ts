@@ -68,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/hospitales/{hospitalId}/configuracion/salas/{salaId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["actualizarSala"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/register": {
         parameters: {
             query?: never;
@@ -532,6 +548,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/hospitales/{hospitalId}/invitaciones/{invitacionId}/reenviar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reenviar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/hospitales/{hospitalId}/configuracion/salas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["crearSala"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/hospitales/{hospitalId}/configuracion/especialidades/{especialidadId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["habilitarEspecialidad"];
+        delete: operations["deshabilitarEspecialidad"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/hospitales/{hospitalId}/membresias/{membresiaId}": {
         parameters: {
             query?: never;
@@ -546,6 +610,22 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["actualizarEstado"];
+        trace?: never;
+    };
+    "/api/admin/hospitales/{hospitalId}/configuracion/salas/{salaId}/estado": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["actualizarEstadoSala"];
         trace?: never;
     };
     "/api/staff/me": {
@@ -620,6 +700,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["obtenerAdmision"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/platform/hospitales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["hospitalesPlataforma"];
         put?: never;
         post?: never;
         delete?: never;
@@ -932,6 +1028,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/hospitales/{hospitalId}/configuracion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtener"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/hospitales/{hospitalId}/auditoria": {
         parameters: {
             query?: never;
@@ -1042,7 +1154,7 @@ export interface components {
             recomendacionSeguridad?: string;
         };
         ActualizarRolesRequest: {
-            roles: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+            roles: ("ADMIN_HOSPITAL" | "MEDICO" | "RECEPCIONISTA")[];
         };
         MembresiaResponse: {
             /** Format: int64 */
@@ -1052,7 +1164,22 @@ export interface components {
             hospitalNombre?: string;
             /** @enum {string} */
             estado?: "INVITADA" | "ACTIVA" | "SUSPENDIDA" | "REVOCADA";
-            roles?: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+            roles?: ("ADMIN_HOSPITAL" | "MEDICO" | "RECEPCIONISTA")[];
+        };
+        GuardarSalaRequest: {
+            nombre: string;
+            /** Format: int64 */
+            especialidadId: number;
+        };
+        SalaHospitalResponse: {
+            /** Format: int64 */
+            id?: number;
+            nombre?: string;
+            activa?: boolean;
+            /** Format: int64 */
+            especialidadId?: number;
+            especialidadCodigo?: string;
+            especialidadNombre?: string;
         };
         RegisterRequest: {
             nombre: string;
@@ -1195,7 +1322,7 @@ export interface components {
         CrearInvitacionRequest: {
             /** Format: email */
             email: string;
-            roles: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+            roles: ("ADMIN_HOSPITAL" | "MEDICO" | "RECEPCIONISTA")[];
             matricula?: string;
             /** @enum {string} */
             tipoMatricula?: "NACIONAL" | "PROVINCIAL";
@@ -1211,7 +1338,7 @@ export interface components {
             email?: string;
             /** @enum {string} */
             estado?: "PENDIENTE" | "ACEPTADA" | "EXPIRADA" | "REVOCADA";
-            roles?: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+            roles?: ("ADMIN_HOSPITAL" | "MEDICO" | "RECEPCIONISTA")[];
             especialidadIds?: number[];
             matricula?: string;
             /** @enum {string} */
@@ -1222,6 +1349,10 @@ export interface components {
             /** Format: date-time */
             fechaCreacion?: string;
             emailEnviado?: boolean;
+            /** Format: date-time */
+            ultimoIntentoEnvio?: string;
+            /** Format: int32 */
+            cantidadIntentosEnvio?: number;
             tokenEntregaUnica?: string;
         };
         EstadoConsultaPacienteDTO: {
@@ -1401,9 +1532,23 @@ export interface components {
             placeId: string;
             codigoEspecialidad: string;
         };
+        ConfiguracionHospitalResponse: {
+            especialidades?: components["schemas"]["EspecialidadHospitalResponse"][];
+            salas?: components["schemas"]["SalaHospitalResponse"][];
+        };
+        EspecialidadHospitalResponse: {
+            /** Format: int64 */
+            id?: number;
+            codigo?: string;
+            nombre?: string;
+            habilitada?: boolean;
+        };
         ActualizarMembresiaRequest: {
             /** @enum {string} */
             estado: "INVITADA" | "ACTIVA" | "SUSPENDIDA" | "REVOCADA";
+        };
+        ActualizarEstadoSalaRequest: {
+            activa: boolean;
         };
         StaffMeResponse: {
             id?: string;
@@ -1445,6 +1590,13 @@ export interface components {
             id?: number;
             nombre?: string;
             especialidades?: components["schemas"]["EspecialidadMedicaDTO"][];
+        };
+        HospitalPlataformaResponse: {
+            /** Format: int64 */
+            id?: number;
+            nombre?: string;
+            /** Format: int64 */
+            administradoresActivos?: number;
         };
         CredencialResponse: {
             /** Format: int64 */
@@ -1508,7 +1660,7 @@ export interface components {
             email?: string;
             /** @enum {string} */
             estado?: "PENDIENTE" | "ACEPTADA" | "EXPIRADA" | "REVOCADA";
-            roles?: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+            roles?: ("ADMIN_HOSPITAL" | "MEDICO" | "RECEPCIONISTA")[];
             especialidadIds?: number[];
             matricula?: string;
             /** @enum {string} */
@@ -1541,7 +1693,7 @@ export interface components {
             email?: string;
             /** @enum {string} */
             estado?: "INVITADA" | "ACTIVA" | "SUSPENDIDA" | "REVOCADA";
-            roles?: ("ADMIN_HOSPITAL" | "COORDINADOR_MEDICO" | "MEDICO" | "RECEPCIONISTA")[];
+            roles?: ("ADMIN_HOSPITAL" | "MEDICO" | "RECEPCIONISTA")[];
         };
         AuditoriaResponse: {
             /** Format: int64 */
@@ -1718,6 +1870,33 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MembresiaResponse"];
+                };
+            };
+        };
+    };
+    actualizarSala: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+                salaId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuardarSalaRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SalaHospitalResponse"];
                 };
             };
         };
@@ -2463,6 +2642,101 @@ export interface operations {
             };
         };
     };
+    reenviar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+                invitacionId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["InvitacionResponse"];
+                };
+            };
+        };
+    };
+    crearSala: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuardarSalaRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SalaHospitalResponse"];
+                };
+            };
+        };
+    };
+    habilitarEspecialidad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+                especialidadId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConfiguracionHospitalResponse"];
+                };
+            };
+        };
+    };
+    deshabilitarEspecialidad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+                especialidadId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConfiguracionHospitalResponse"];
+                };
+            };
+        };
+    };
     actualizarEstado: {
         parameters: {
             query?: never;
@@ -2486,6 +2760,33 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MembresiaResponse"];
+                };
+            };
+        };
+    };
+    actualizarEstadoSala: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+                salaId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActualizarEstadoSalaRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SalaHospitalResponse"];
                 };
             };
         };
@@ -2592,6 +2893,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdmisionRecepcionDetalleDTO"];
+                };
+            };
+        };
+    };
+    hospitalesPlataforma: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HospitalPlataformaResponse"][];
                 };
             };
         };
@@ -3005,6 +3326,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PersonalResponse"][];
+                };
+            };
+        };
+    };
+    obtener: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConfiguracionHospitalResponse"];
                 };
             };
         };

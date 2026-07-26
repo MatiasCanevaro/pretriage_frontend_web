@@ -11,9 +11,9 @@ The authoritative domain proposal is maintained in the backend document
 - All staff use one authentication flow and one identity.
 - After login, the backend returns every active hospital membership and permitted
   workspace.
-- The workspace selector always remains available from `Espacios`; it never redirects
-  automatically. The user first chooses a hospital and then one of the supported roles
-  assigned to them in that hospital.
+- With one active hospital the user enters automatically. With several hospitals the
+  selector asks only for the institution. Roles are additive capabilities exposed as
+  modules in one hospital navigation; they are not a second login mode.
 - Staff roles are granted by invitation and cannot be selected through public
   registration.
 - Existing users accept a new hospital membership with their existing credentials.
@@ -46,11 +46,11 @@ current `detectStaffRole()` behavior must be replaced after `/api/staff/me` exis
 
 ## Workspace selection
 
-The selector uses two explicit steps: hospital first, then role. Navigation represents
-the chosen context, but the route is not authority. The medical workspace keeps that
-hospital fixed and asks only for specialty and room when starting a session. Every BFF
-call forwards the session to backend endpoints that validate active membership and
-resource ownership.
+The selector chooses only a hospital. The default module is reception, medicine or
+hospital administration in that order, while every other permitted module remains
+visible in the shared shell. Navigation represents the chosen context, but the route
+is not authority. Every BFF call forwards the session to backend endpoints that
+validate active membership and resource ownership.
 
 No token, patient identity, DNI, clinical record, or invitation secret is stored in
 localStorage. A short-lived server session may retain a non-sensitive workspace
@@ -68,7 +68,7 @@ preference, or the user can select it through the route each time.
 ### Staff
 
 - Search active memberships.
-- Invite doctor, receptionist, coordinator, or another hospital admin.
+- Invite doctor, receptionist, or another hospital admin.
 - Suspend and reactivate access.
 - Edit hospital-scoped roles without modifying the global identity.
 - Prevent removal of the last active hospital admin.
@@ -88,8 +88,8 @@ preference, or the user can select it through the route each time.
 
 ### Rooms and specialties
 
-- Hospital admins and medical coordinators can create, activate, deactivate, and
-  edit rooms according to backend permissions.
+- Hospital admins can create, activate, deactivate, and edit rooms according to
+  backend permissions. Medical coordination is included in this role.
 - Ordinary doctors consume assigned rooms but cannot alter hospital configuration.
 
 ### Audit

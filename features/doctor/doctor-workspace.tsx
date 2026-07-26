@@ -11,6 +11,7 @@ import type {
   MedicalSession,
   QueueConsultation,
 } from "@/lib/api/types";
+import type { HospitalRole } from "@/lib/staff-context";
 
 const doctorApi = "/api/staff/doctor";
 
@@ -76,10 +77,12 @@ export function DoctorWorkspace({
   userName,
   hospitalId,
   hospitalName,
+  roles,
 }: {
   userName: string;
   hospitalId: number;
   hospitalName: string;
+  roles: HospitalRole[];
 }) {
   const queryClient = useQueryClient();
   const [assignmentKey, setAssignmentKey] = useState("");
@@ -257,6 +260,9 @@ export function DoctorWorkspace({
           ? `${activeHospitalName} · ${session.estado}`
           : activeHospitalName
       }
+      hospitalId={hospitalId}
+      hospitalName={hospitalName}
+      roles={roles}
     >
       {content}
     </StaffShell>

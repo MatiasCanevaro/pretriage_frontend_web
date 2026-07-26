@@ -16,6 +16,7 @@ import type {
   ReceptionPatient,
   ReceptionSession,
 } from "@/lib/api/types";
+import type { HospitalRole } from "@/lib/staff-context";
 import {
   clinicalSchema,
   birthDateToDisplay,
@@ -106,7 +107,12 @@ const emptyPatient: PatientFormValues = {
   codigoEspecialidad: "",
 };
 
-export function ReceptionWorkspace({ userName }: { userName: string }) {
+export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles }: {
+  userName: string;
+  hospitalId: number;
+  hospitalName: string;
+  roles: HospitalRole[];
+}) {
   const queryClient = useQueryClient();
   const [stage, setStage] = useState<Stage>("dashboard");
   const [patient, setPatient] = useState<ReceptionPatient | null>(null);
@@ -124,6 +130,10 @@ export function ReceptionWorkspace({ userName }: { userName: string }) {
   const activeHospital = useMemo(
     () => bootstrap.data?.hospitals.find((item) => item.id === session?.hospitalId),
     [bootstrap.data?.hospitals, session?.hospitalId],
+  );
+  const selectedHospital = useMemo(
+    () => bootstrap.data?.hospitals.find((item) => item.id === hospitalId),
+    [bootstrap.data?.hospitals, hospitalId],
   );
   const patientForm = useForm<PatientFormValues>({
     resolver: zodResolver(patientSchema), defaultValues: emptyPatient,
@@ -275,6 +285,9 @@ export function ReceptionWorkspace({ userName }: { userName: string }) {
     <StaffShell
       role="Recepción" userName={userName} section={section}
       sessionLabel={session ? `${session.hospitalNombre ?? "Hospital"} · Activa` : undefined}
+      hospitalId={session?.hospitalId ?? hospitalId}
+      hospitalName={session?.hospitalNombre ?? hospitalName}
+      roles={roles}
     >
       {content}
     </StaffShell>
@@ -298,10 +311,10 @@ export function ReceptionWorkspace({ userName }: { userName: string }) {
         <header className="page-heading">
           <p className="eyebrow">Inicio de jornada</p>
           <h1>Hola, {userName.split(" ")[0]}</h1>
-          <p>Seleccioná el hospital donde vas a trabajar hoy.</p>
+          <p>Iniciá la jornada en {hospitalName}.</p>
         </header>
         <div className="hospital-grid">
-          {bootstrap.data.hospitals.map((hospital) => (
+          {selectedHospital ? [selectedHospital].map((hospital) => (
             <article className="hospital-card" key={hospital.id}>
               <div className="hospital-icon" aria-hidden="true">H</div>
               <h2>{hospital.nombre}</h2>
@@ -312,9 +325,9 @@ export function ReceptionWorkspace({ userName }: { userName: string }) {
                 onClick={() => hospital.id && startSession.mutate(hospital.id)}
               >{startSession.isPending ? "Iniciando…" : "Iniciar sesión"}</button>
             </article>
-          ))}
+          )) : null}
         </div>
-        {!bootstrap.data.hospitals.length ? <div className="notice notice-info">No tenés hospitales asignados.</div> : null}
+        {!selectedHospital ? <div className="notice notice-info">Este hospital ya no está disponible para tu cuenta.</div> : null}
         <ErrorNotice error={startSession.error} />
       </div>,
     );

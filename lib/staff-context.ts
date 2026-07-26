@@ -3,7 +3,6 @@ import { backendRequest } from "@/lib/api/server";
 
 export type HospitalRole =
   | "ADMIN_HOSPITAL"
-  | "COORDINADOR_MEDICO"
   | "MEDICO"
   | "RECEPCIONISTA";
 

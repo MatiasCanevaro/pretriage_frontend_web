@@ -28,6 +28,7 @@ export default async function DoctorPage({
     <DoctorWorkspace
       hospitalId={membership.hospitalId}
       hospitalName={membership.hospitalNombre}
+      roles={membership.roles}
       userName={session.user.name ?? session.user.email ?? "Profesional médico"}
     />
   );
