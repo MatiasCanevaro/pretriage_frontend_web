@@ -26,6 +26,16 @@ An in-attention doctor workspace also refetches the pretriage summary and priori
 Verification: npm run typecheck, npm run lint, npm run build.
 Never commit credentials, tokens, or real patient data.
 
+## Continuous integration
+
+GitHub Actions runs `.github/workflows/ci.yml` for pull requests and pushes to
+`desarrollo` and `main`. The `Frontend CI / verify` check installs the locked
+dependencies with `npm ci`, then runs typecheck, lint, and the production build.
+
+Configure `Frontend CI / verify` as a required status check in the branch
+protection rules for `desarrollo` and `main` so a pull request cannot merge while
+the check is pending or failing.
+
 ## Staff access development
 
 After login, `/api/staff/me` resolves all active hospital workspaces. Existing
