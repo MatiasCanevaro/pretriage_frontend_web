@@ -1,34 +1,26 @@
 import { redirect } from "next/navigation";
-import { Brand } from "@/components/brand";
+import { WorkspaceSelector } from "@/features/workspaces/workspace-selector";
 import { getSession } from "@/lib/session";
-import { detectStaffRole } from "@/lib/staff-role";
+import { getStaffContext } from "@/lib/staff-context";
+import { defaultHospitalRoute } from "@/lib/workspace-routing";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const session = await getSession();
   if (!session) redirect("/login");
-
-  const role = await detectStaffRole();
-  if (role === "reception") redirect("/recepcion");
-  if (role === "doctor") redirect("/medico");
+  const context = await getStaffContext();
+  const activeMemberships = context?.membresias.filter(
+    (membership) => membership.estado === "ACTIVA" && defaultHospitalRoute(membership),
+  ) ?? [];
+  if (activeMemberships.length === 1) redirect(defaultHospitalRoute(activeMemberships[0])!);
+  if (!activeMemberships.length && context?.administradorPlataforma) redirect("/admin/plataforma");
 
   return (
-    <main className="public-shell">
-      <section className="login-card">
-        <Brand size="large" />
-        <p className="eyebrow">Cuenta autenticada</p>
-        <h1>No encontramos un perfil hospitalario</h1>
-        <p className="muted">
-          La cuenta de {session.user.name ?? session.user.email ?? "usuario"} no
-          está registrada como recepcionista o médico en PreTriage.
-        </p>
-        <form action="/api/auth/logout" method="post">
-          <button className="button button-secondary button-wide" type="submit">
-            Cerrar sesión
-          </button>
-        </form>
-      </section>
-    </main>
+    <WorkspaceSelector
+      memberships={context?.membresias ?? []}
+      accountLabel={session.user.name ?? session.user.email ?? "usuario"}
+      platformAdmin={context?.administradorPlataforma ?? false}
+    />
   );
 }

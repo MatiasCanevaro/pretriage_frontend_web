@@ -2,12 +2,15 @@ import { NextResponse } from "next/server";
 import { apiErrorResponse } from "@/lib/api/route";
 import { backendRequest } from "@/lib/api/server";
 import type {
+  CurrentMedicalState,
+  ConsultationPretriage,
   DoctorAssignment,
   DoctorBootstrap,
   MedicalAttention,
   MedicalRoom,
   MedicalSession,
   QueueConsultation,
+  PriorityReviewRequest,
 } from "@/lib/api/types";
 
 type Body = Record<string, unknown> & { operation?: string };
@@ -24,11 +27,17 @@ export async function POST(request: Request) {
     const body = (await request.json()) as Body;
     switch (body.operation) {
       case "bootstrap": {
-        const [assignments, history] = await Promise.all([
+        const [assignments, history, current] = await Promise.all([
           backendRequest<DoctorAssignment[]>("/api/medico/asignaciones"),
           backendRequest<MedicalAttention[]>("/api/medico/atenciones"),
+          backendRequest<CurrentMedicalState>("/api/medico/sesiones/actual"),
         ]);
-        return NextResponse.json({ assignments, history } satisfies DoctorBootstrap);
+        return NextResponse.json({
+          assignments,
+          history,
+          session: current.sesion ?? null,
+          currentConsultation: current.consultaActual ?? null,
+        } satisfies DoctorBootstrap);
       }
       case "rooms": {
         const hospitalId = numberValue(body.hospitalId, "hospitalId");
@@ -93,6 +102,37 @@ export async function POST(request: Request) {
           await backendRequest<QueueConsultation>(
             `/api/medico/sesiones/${sessionId}/consultas/${consultationId}/${action}`,
             { method: "POST" },
+          ),
+        );
+      }
+      case "pretriage": {
+        const sessionId = numberValue(body.sessionId, "sessionId");
+        const consultationId = numberValue(body.consultationId, "consultationId");
+        return NextResponse.json(
+          await backendRequest<ConsultationPretriage>(
+            `/api/medico/sesiones/${sessionId}/consultas/${consultationId}/pretriaje`,
+          ),
+        );
+      }
+      case "reviewPriority": {
+        const sessionId = numberValue(body.sessionId, "sessionId");
+        const consultationId = numberValue(body.consultationId, "consultationId");
+        const decision = body.decision;
+        if (!['CONFIRMAR', 'CORREGIR'].includes(String(decision))) {
+          throw new TypeError("DecisiÃ³n de prioridad invÃ¡lida");
+        }
+        const review: PriorityReviewRequest = {
+          decision: decision as PriorityReviewRequest["decision"],
+          prioridad:
+            typeof body.priority === "string"
+              ? (body.priority as PriorityReviewRequest["prioridad"])
+              : undefined,
+          motivo: typeof body.reason === "string" ? body.reason : undefined,
+        };
+        return NextResponse.json(
+          await backendRequest<ConsultationPretriage>(
+            `/api/medico/sesiones/${sessionId}/consultas/${consultationId}/revision-prioridad`,
+            { method: "PUT", body: JSON.stringify(review) },
           ),
         );
       }

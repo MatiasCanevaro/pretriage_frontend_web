@@ -14,8 +14,11 @@ export type ReceptionTriageForm =
 export type DoctorAssignment = ApiSchemas["AsignacionMedicoDTO"];
 export type MedicalRoom = ApiSchemas["SalaDTO"];
 export type MedicalSession = ApiSchemas["SesionAtencionMedicaDTO"];
+export type CurrentMedicalState = ApiSchemas["SesionMedicaActualDTO"];
 export type QueueConsultation = ApiSchemas["ConsultaLlamadaDTO"];
 export type MedicalAttention = ApiSchemas["AtencionMedicaDTO"];
+export type ConsultationPretriage = ApiSchemas["PretriajeConsultaDTO"];
+export type PriorityReviewRequest = ApiSchemas["RevisionPrioridadRequest"];
 
 export type ReceptionBootstrap = {
   hospitals: ReceptionHospital[];
@@ -26,4 +29,6 @@ export type ReceptionBootstrap = {
 export type DoctorBootstrap = {
   assignments: DoctorAssignment[];
   history: MedicalAttention[];
+  session: MedicalSession | null;
+  currentConsultation: QueueConsultation | null;
 };

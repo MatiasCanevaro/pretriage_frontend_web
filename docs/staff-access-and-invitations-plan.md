@@ -1,8 +1,7 @@
 # Staff access and invitation frontend plan
 
-Status: proposed frontend work. The current delivery implements reception and the
-backend-supported portion of the doctor flow; it does not yet implement the
-membership or invitation features below.
+Status: first membership and hospital-administration vertical slice implemented.
+The remaining security and operational work is listed below.
 
 The authoritative domain proposal is maintained in the backend document
 `docs/10-staff-identity-memberships-and-invitations.md`.
@@ -12,8 +11,9 @@ The authoritative domain proposal is maintained in the backend document
 - All staff use one authentication flow and one identity.
 - After login, the backend returns every active hospital membership and permitted
   workspace.
-- One workspace redirects automatically; several workspaces open a selector grouped
-  by hospital.
+- With one active hospital the user enters automatically. With several hospitals the
+  selector asks only for the institution. Roles are additive capabilities exposed as
+  modules in one hospital navigation; they are not a second login mode.
 - Staff roles are granted by invitation and cannot be selected through public
   registration.
 - Existing users accept a new hospital membership with their existing credentials.
@@ -23,10 +23,9 @@ The authoritative domain proposal is maintained in the backend document
 ## Planned routes
 
 ```text
-/                         workspace resolution
+/                         hospital and role selector
 /login                    shared authentication
 /invitaciones/aceptar     invitation summary and acceptance
-/seleccionar-espacio      hospital and role selector
 /recepcion                reception workflow
 /medico                   doctor workflow
 /admin/hospital           hospital administration
@@ -47,9 +46,11 @@ current `detectStaffRole()` behavior must be replaced after `/api/staff/me` exis
 
 ## Workspace selection
 
-The selector shows hospital, role, and relevant specialty. Navigation represents the
-chosen context, but the route is not authority. Every BFF call forwards the session
-to backend endpoints that validate active membership and resource ownership.
+The selector chooses only a hospital. The default module is reception, medicine or
+hospital administration in that order, while every other permitted module remains
+visible in the shared shell. Navigation represents the chosen context, but the route
+is not authority. Every BFF call forwards the session to backend endpoints that
+validate active membership and resource ownership.
 
 No token, patient identity, DNI, clinical record, or invitation secret is stored in
 localStorage. A short-lived server session may retain a non-sensitive workspace
@@ -67,7 +68,7 @@ preference, or the user can select it through the route each time.
 ### Staff
 
 - Search active memberships.
-- Invite doctor, receptionist, coordinator, or another hospital admin.
+- Invite doctor, receptionist, or another hospital admin.
 - Suspend and reactivate access.
 - Edit hospital-scoped roles without modifying the global identity.
 - Prevent removal of the last active hospital admin.
@@ -87,8 +88,8 @@ preference, or the user can select it through the route each time.
 
 ### Rooms and specialties
 
-- Hospital admins and medical coordinators can create, activate, deactivate, and
-  edit rooms according to backend permissions.
+- Hospital admins can create, activate, deactivate, and edit rooms according to
+  backend permissions. Medical coordination is included in this role.
 - Ordinary doctors consume assigned rooms but cannot alter hospital configuration.
 
 ### Audit
@@ -132,6 +133,7 @@ must not enter logs, analytics, or client persistence.
 
 - A dual-role account can choose reception or medicine after one login.
 - A doctor added to another hospital reuses the same account and sees both hospitals.
+- Reloading the medical workspace restores an active or paused session and its current consultation.
 - An unauthorized route redirects without hiding a backend authorization failure.
 - An invitation mutation cannot be submitted twice while pending.
 - Admin controls are limited to memberships returned for the selected hospital.
@@ -139,3 +141,27 @@ must not enter logs, analytics, or client persistence.
   persistent browser storage.
 - All new routes pass typecheck, lint, production build, and Next.js runtime error
   checks.
+
+## Implemented in this delivery
+
+- `/api/staff/me` replaces reception-first role probing.
+- A dual-role or multi-hospital account sees a workspace selector after login.
+- Reception, medicine and hospital administration authorize from active scoped
+  memberships.
+- `/admin/hospital` lists personnel, invitations and recent audit activity; it can
+  invite staff, suspend/reactivate memberships and revoke pending invitations.
+- Medical invitations capture registration number, national/provincial type and
+  issuing jurisdiction. Provincial jurisdiction uses the bundled Argentine
+  province catalog; national credentials are sent as `NACION`.
+- `/invitaciones/aceptar` consumes the one-time secret from the URL fragment, moves
+  it immediately into memory and removes it from browser history. New users choose
+  their password; existing users accept with their authenticated account.
+- Browser calls use privacy-safe BFF routes and TanStack Query owns admin remote
+  state.
+
+The current development backend has no mail provider. The panel therefore displays
+the secret once so a developer can construct `/invitaciones/aceptar#<secreto>`.
+Production must send that fragment link through a configured mail adapter and must
+remove the manual secret display. Authorization Code + PKCE, access-token audience,
+MFA, mail delivery, platform screens, room/specialty administration and patient
+claiming remain pending.

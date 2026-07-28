@@ -20,10 +20,24 @@ Requirements: Node.js 20+, npm, and the backend at http://localhost:8080.
 - app/api/staff/: privacy-safe BFF routes. Browser code never receives bearer tokens.
 - app/api/auth/: provisional login/logout against the backend.
 
-Implement reception first. Doctor refresh-sensitive paths remain blocked by backend contracts.
+Reception and doctor sessions recover their authoritative state from the backend after a reload.
+An in-attention doctor workspace also refetches the pretriage summary and priority-review state. Finalization stays disabled until that backend-owned review is confirmed or corrected.
 
 Verification: npm run typecheck, npm run lint, npm run build.
 Never commit credentials, tokens, or real patient data.
+
+## Staff access development
+
+After login, `/api/staff/me` resolves all active hospital workspaces. Existing
+reception/doctor records are migrated lazily by the backend. Hospital admins use
+`/admin/hospital`; invitation acceptance uses
+`/invitaciones/aceptar#<one-time-secret>`. The fragment is removed from browser
+history as soon as the page loads and is never persisted by the frontend.
+
+The backend uses `LocalInvitationEmailAdapter` by default and returns the invitation
+secret once for local handoff. SMTP mode sends the fragment link and never exposes
+the secret in the administrative response. Do not paste invitation secrets into
+issue trackers, logs or committed files.
 
 ## Provisional authentication
 
