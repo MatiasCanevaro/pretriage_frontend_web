@@ -17,6 +17,7 @@ import type {
   ReceptionSession,
 } from "@/lib/api/types";
 import type { HospitalRole } from "@/lib/staff-context";
+import { ReceptionCoverageStep } from "@/features/reception/reception-coverage-step";
 import {
   clinicalSchema,
   birthDateToDisplay,
@@ -29,7 +30,7 @@ import {
   type PatientFormValues,
 } from "@/features/reception/schema";
 
-type Stage = "dashboard" | "search" | "patient" | "triage" | "review" | "done";
+type Stage = "dashboard" | "search" | "patient" | "coverage" | "triage" | "review" | "done";
 const receptionApi = "/api/staff/reception";
 
 function messageFrom(error: unknown) {
@@ -49,7 +50,7 @@ function FieldError({ message }: { message?: string }) {
 function Progress({ active }: { active: number }) {
   return (
     <ol className="progress" aria-label="Progreso de la admisión">
-      {["Paciente", "Síntomas", "Revisión", "Confirmación"].map((label, index) => (
+      {["Paciente", "Cobertura", "Síntomas", "Revisión", "Confirmación"].map((label, index) => (
         <li className={index <= active ? "progress-active" : ""} key={label}>
           <span>{index < active ? "✓" : index + 1}</span>{label}
         </li>
@@ -103,7 +104,7 @@ function formatEstimate(from?: string, to?: string, estimated?: string) {
 const emptyPatient: PatientFormValues = {
   dni: "", nombre: "", apellido: "", fechaNacimiento: "",
   generoBiologico: "X", telefono: "", correoElectronico: "",
-  calle: "", alturaDomicilio: "", piso: "", ciudad: "", provincia: "", codigoPostal: "",
+  calle: "", alturaDomicilio: "", piso: "", ciudad: "", provincia: "",
   codigoEspecialidad: "",
 };
 
@@ -186,7 +187,7 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles }
         correoElectronico: found.correoElectronico ?? "",
         calle: found.calle ?? "", alturaDomicilio: found.alturaDomicilio ?? "",
         piso: found.piso ?? "", ciudad: found.ciudad ?? "",
-        provincia: found.provincia ?? "", codigoPostal: found.codigoPostal ?? "",
+        provincia: found.provincia ?? "",
         codigoEspecialidad: "",
       });
       setStage("patient");
@@ -209,7 +210,7 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles }
     onSuccess: (created) => {
       setAdmission(created);
       clinicalForm.reset(emptyClinicalForm);
-      setStage("triage");
+      setStage(created.pacienteId ? "coverage" : "triage");
       void refresh();
     },
   });
@@ -418,7 +419,6 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles }
             <label className="field"><span>Piso (opcional)</span><input {...patientForm.register("piso")} /></label>
             <label className="field"><span>Provincia</span><Controller control={patientForm.control} name="provincia" render={({ field }) => <SearchableCombobox value={field.value} options={argentinaLocations.provinces.map((item) => item.name)} onChange={(value) => { field.onChange(value); patientForm.setValue("ciudad", "", { shouldDirty: true }); }} />} /><FieldError message={patientForm.formState.errors.provincia?.message} /></label>
             <label className="field"><span>Ciudad</span><Controller control={patientForm.control} name="ciudad" render={({ field }) => <SearchableCombobox value={field.value} options={cityOptions} disabled={!selectedProvince} placeholder={selectedProvince ? "Buscar localidad" : "Seleccioná primero una provincia"} onChange={field.onChange} />} /><FieldError message={patientForm.formState.errors.ciudad?.message} /></label>
-            <label className="field"><span>Código postal</span><input {...patientForm.register("codigoPostal")} /><FieldError message={patientForm.formState.errors.codigoPostal?.message} /></label>
           </div>
           <div className="form-actions">
             <button className="button button-secondary" type="button" onClick={() => setStage("search")}>Volver</button>
@@ -432,10 +432,27 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles }
       "Admisiones",
     );
   }
-  if (stage === "triage") {
+  if (stage === "coverage" && admission?.pacienteId) {
+    const patientValues = patientForm.getValues();
     return shell(
       <div className="page-stack">
         <Progress active={1} />
+        <ReceptionCoverageStep
+          patientId={admission.pacienteId}
+          patientName={`${patientValues.nombre} ${patientValues.apellido}`.trim() || "Paciente"}
+          onContinue={() => setStage("triage")}
+          onCancel={() => admission.id && cancelAdmission.mutate(admission.id)}
+          isCancelling={cancelAdmission.isPending}
+        />
+        <ErrorNotice error={cancelAdmission.error} />
+      </div>,
+      "Admisiones",
+    );
+  }
+  if (stage === "triage") {
+    return shell(
+      <div className="page-stack">
+        <Progress active={2} />
         <header className="page-heading"><p className="eyebrow">Admisión #{admission?.id}</p><h1>Motivo y estado actual</h1><p>Registrá lo informado por el paciente una sola vez, sin interpretar.</p></header>
         <form
           className="panel form-panel"
@@ -491,7 +508,7 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles }
   if (stage === "review" && review) {
     return shell(
       <div className="page-stack">
-        <Progress active={2} />
+        <Progress active={3} />
         <header className="page-heading"><p className="eyebrow">Último paso</p><h1>Revisar y finalizar</h1><p>La prioridad será calculada por el backend y no puede modificarse en recepción.</p></header>
         <section className="review-grid">
           <article className="panel summary-card">
@@ -529,7 +546,7 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles }
   }
   return shell(
     <div className="page-stack narrow-stack">
-      <Progress active={3} />
+      <Progress active={4} />
       <section className="panel success-card">
         <div className="success-icon" aria-hidden="true">✓</div>
         <p className="eyebrow">Admisión confirmada</p>

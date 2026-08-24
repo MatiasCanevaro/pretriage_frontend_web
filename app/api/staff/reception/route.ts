@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { apiErrorResponse } from "@/lib/api/route";
 import { backendRequest } from "@/lib/api/server";
 import type {
+  CreatePatientCredential,
+  PatientCredential,
   CreateReceptionAdmission,
   ReceptionAdmission,
   ReceptionAdmissionDetail,
@@ -19,6 +21,26 @@ function numberValue(value: unknown, field: string) {
     throw new TypeError(`${field} inválido`);
   }
   return value;
+}
+
+function credentialValue(value: unknown): CreatePatientCredential {
+  if (!value || typeof value !== "object") {
+    throw new TypeError("Credencial inválida");
+  }
+  const credential = value as Record<string, unknown>;
+  const nombreObraSocial = credential.nombreObraSocial;
+  const numeroAfiliado = credential.numeroAfiliado;
+  const plan = credential.plan;
+  const fechaVencimiento = credential.fechaVencimiento;
+  if (
+    typeof nombreObraSocial !== "string" ||
+    typeof numeroAfiliado !== "string" ||
+    typeof plan !== "string" ||
+    typeof fechaVencimiento !== "string"
+  ) {
+    throw new TypeError("Credencial inválida");
+  }
+  return { nombreObraSocial, numeroAfiliado, plan, fechaVencimiento };
 }
 
 export async function POST(request: Request) {
@@ -78,6 +100,26 @@ export async function POST(request: Request) {
             body: JSON.stringify(body.admission as CreateReceptionAdmission),
           }),
         );
+      case "patientCredentials": {
+        const patientId = numberValue(body.patientId, "patientId");
+        return NextResponse.json(
+          await backendRequest<PatientCredential[]>(
+            `/api/pacientes/${patientId}/obrasocial/credenciales`,
+          ),
+        );
+      }
+      case "createPatientCredential": {
+        const patientId = numberValue(body.patientId, "patientId");
+        return NextResponse.json(
+          await backendRequest<{ mensaje?: string }>(
+            `/api/pacientes/${patientId}/obrasocial/credencial`,
+            {
+              method: "POST",
+              body: JSON.stringify(credentialValue(body.credential)),
+            },
+          ),
+        );
+      }
       case "getAdmission": {
         const admissionId = numberValue(body.admissionId, "admissionId");
         return NextResponse.json(

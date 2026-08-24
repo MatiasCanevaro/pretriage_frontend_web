@@ -7,8 +7,10 @@ export type ReceptionPatient = ApiSchemas["PacienteRecepcionDTO"];
 export type ReceptionAdmission = ApiSchemas["AdmisionRecepcionDTO"];
 export type ReceptionAdmissionDetail =
   ApiSchemas["AdmisionRecepcionDetalleDTO"];
-export type CreateReceptionAdmission =
-  ApiSchemas["CrearAdmisionRecepcionRequest"];
+export type CreateReceptionAdmission = Omit<
+  ApiSchemas["CrearAdmisionRecepcionRequest"],
+  "codigoPostal"
+> & { codigoPostal?: string };
 export type ReceptionTriageForm =
   ApiSchemas["FormularioTriageRecepcionRequest"];
 export type DoctorAssignment = ApiSchemas["AsignacionMedicoDTO"];
@@ -19,6 +21,10 @@ export type QueueConsultation = ApiSchemas["ConsultaLlamadaDTO"];
 export type MedicalAttention = ApiSchemas["AtencionMedicaDTO"];
 export type ConsultationPretriage = ApiSchemas["PretriajeConsultaDTO"];
 export type PriorityReviewRequest = ApiSchemas["RevisionPrioridadRequest"];
+export type CreatePatientCredential = ApiSchemas["CredencialRequest"];
+export type PatientCredential = ApiSchemas["CredencialResponse"] & {
+  nombreObraSocial?: string;
+};
 
 export type ReceptionBootstrap = {
   hospitals: ReceptionHospital[];
