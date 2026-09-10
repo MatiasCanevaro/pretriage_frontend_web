@@ -3,6 +3,11 @@ import { getSession } from "@/lib/session";
 
 const backendBaseUrl = process.env.BACKEND_API_URL ?? "http://localhost:8080";
 
+export const GENERIC_OPERATION_ERROR =
+  "No pudimos completar la operación. Intentá nuevamente.";
+export const SERVICE_UNAVAILABLE_ERROR =
+  "No pudimos completar la operación en este momento. Intentá nuevamente más tarde.";
+
 export class BackendApiError extends Error {
   constructor(
     public readonly status: number,
@@ -14,23 +19,36 @@ export class BackendApiError extends Error {
 }
 
 function safeMessage(payload: unknown, fallback: string) {
+  let candidate: string | null = null;
   if (
     payload &&
     typeof payload === "object" &&
     "message" in payload &&
     typeof payload.message === "string"
   ) {
-    return payload.message;
-  }
-  if (
+    candidate = payload.message;
+  } else if (
     payload &&
     typeof payload === "object" &&
     "error" in payload &&
     typeof payload.error === "string"
   ) {
-    return payload.error;
+    candidate = payload.error;
   }
-  return fallback;
+
+  const message = candidate?.trim();
+  const containsTechnicalDetails =
+    /\b(backend|server|servidor|endpoint|exception|stack|trace|sql|database|connection|fetch|http|json|auth0|smtp)\b/i.test(
+      message ?? "",
+    );
+  return message && message.length <= 300 && !containsTechnicalDetails
+    ? message
+    : fallback;
+}
+
+function responseErrorMessage(status: number, payload: unknown) {
+  if (status >= 500) return SERVICE_UNAVAILABLE_ERROR;
+  return safeMessage(payload, GENERIC_OPERATION_ERROR);
 }
 
 export async function publicBackendRequest<T>(
@@ -50,14 +68,17 @@ export async function publicBackendRequest<T>(
       },
     });
   } catch {
-    throw new BackendApiError(502, "No pudimos conectar con el backend.");
+    throw new BackendApiError(502, SERVICE_UNAVAILABLE_ERROR);
   }
   const contentType = response.headers.get("content-type") ?? "";
   const payload: unknown = contentType.includes("application/json")
     ? await response.json()
     : null;
   if (!response.ok) {
-    throw new BackendApiError(response.status, safeMessage(payload, "No pudimos completar la operación."));
+    throw new BackendApiError(
+      response.status,
+      responseErrorMessage(response.status, payload),
+    );
   }
   return payload as T;
 }
@@ -92,7 +113,7 @@ export async function backendRequest<T>(
         "La operación tardó demasiado. Podés reintentar sin perder el borrador.",
       );
     }
-    throw new BackendApiError(502, "No pudimos conectar con el backend.");
+    throw new BackendApiError(502, SERVICE_UNAVAILABLE_ERROR);
   }
 
   if (response.status === 204) return null as T;
@@ -104,7 +125,7 @@ export async function backendRequest<T>(
   if (!response.ok) {
     throw new BackendApiError(
       response.status,
-      safeMessage(payload, "No pudimos completar la operación."),
+      responseErrorMessage(response.status, payload),
     );
   }
 

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { BackendApiError } from "@/lib/api/server";
+import {
+  BackendApiError,
+  SERVICE_UNAVAILABLE_ERROR,
+} from "@/lib/api/server";
 
 export function apiErrorResponse(error: unknown) {
   if (error instanceof BackendApiError) {
@@ -10,7 +13,7 @@ export function apiErrorResponse(error: unknown) {
   }
 
   return NextResponse.json(
-    { message: "Ocurrió un error inesperado.", status: 500 },
+    { message: SERVICE_UNAVAILABLE_ERROR, status: 500 },
     { status: 500 },
   );
 }

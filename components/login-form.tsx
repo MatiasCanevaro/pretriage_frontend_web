@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 export function LoginForm() {
@@ -62,6 +63,9 @@ export function LoginForm() {
           type="password"
         />
       </label>
+      <Link className="forgot-password-link" href="/restablecer-contrasena">
+        ¿Olvidaste tu contraseña?
+      </Link>
       {error ? (
         <div className="notice notice-error" role="alert">
           {error}

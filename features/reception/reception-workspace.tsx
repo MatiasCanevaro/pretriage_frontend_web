@@ -509,7 +509,7 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles }
     return shell(
       <div className="page-stack">
         <Progress active={3} />
-        <header className="page-heading"><p className="eyebrow">Último paso</p><h1>Revisar y finalizar</h1><p>La prioridad será calculada por el backend y no puede modificarse en recepción.</p></header>
+        <header className="page-heading"><p className="eyebrow">Último paso</p><h1>Revisar y finalizar</h1><p>La prioridad se calculará automáticamente y no puede modificarse en recepción.</p></header>
         <section className="review-grid">
           <article className="panel summary-card">
             <h2>Resumen clínico</h2>

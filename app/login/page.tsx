@@ -18,9 +18,6 @@ export default async function LoginPage() {
           Usá las credenciales asignadas para recepción o atención médica.
         </p>
         <LoginForm />
-        <p className="privacy-note">
-          Implementación provisoria: la autenticación se delega al backend.
-        </p>
       </section>
     </main>
   );

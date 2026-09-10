@@ -9,30 +9,30 @@ Formulario web
   -> POST /api/auth/login de Next.js
   -> POST /api/login de Spring Boot
   -> Password Realm de Auth0
-  -> ID token
-  -> cookie HttpOnly de Next.js
+  -> access token + refresh token rotativo
+  -> cookies HttpOnly separadas de Next.js
+  -> renovación server-side mediante POST /api/renovar
   -> llamadas BFF con Authorization: Bearer
 ```
 
 Las credenciales sólo atraviesan el servidor de Next.js y Spring Boot durante
-el login. No se guardan. El token no se entrega a componentes React, no se
+el login. No se guardan. Los tokens no se entregan a componentes React, no se
 escribe en localStorage y no debe aparecer en logs, URLs ni analítica.
 
 Este flujo no está aprobado para producción.
 
 ## Riesgos conocidos
 
-1. Spring devuelve un ID token y el frontend lo usa como bearer de la API. Un
-   ID token prueba autenticación para el cliente; la API debe recibir un access
-   token destinado a su audience.
-2. El grant Password Realm hace que la aplicación manipule directamente la
+1. El grant Password Realm hace que la aplicación manipule directamente la
    contraseña y limita MFA, SSO y recuperación gestionada por Universal Login.
-3. La cookie contiene el JWT sin una capa propia de cifrado o una sesión
-   opaca del servidor.
-4. No hay renovación, rotación ni revocación de sesión. Al expirar el token se
-   exige un nuevo login.
-5. Proxy sólo comprueba presencia de cookie. La autorización real depende del
-   backend, pero el chequeo optimista no valida la sesión.
+2. Las cookies contienen los tokens OAuth sin una capa propia de cifrado ni una
+   sesión opaca del servidor.
+3. El logout elimina las cookies locales, pero el backend todavía no ofrece un
+   endpoint explícito para revocar el refresh token en Auth0.
+4. Proxy comprueba expiración y renueva el token, pero la autorización real
+   continúa dependiendo del backend.
+5. El audience solicitado está fijado a `http://localhost:8080` en el backend y
+   debe externalizarse para otros entornos.
 6. El decoder de Spring valida issuer pero debe validar explícitamente el
    audience de la API.
 7. Falta definir rate limiting, protección CSRF completa y auditoría segura del
@@ -40,20 +40,22 @@ Este flujo no está aprobado para producción.
 
 ## Contrato backend objetivo
 
-Manteniendo temporalmente el formulario propio, cambiar `POST /api/login`
-para devolver:
+El contrato transitorio implementado por `POST /api/login` y `POST /api/renovar`
+devuelve:
 
 ```json
 {
-  "accessToken": "<access-token>",
-  "tokenType": "Bearer",
-  "expiresIn": 3600
+  "token": "<access-token>",
+  "refreshToken": "<rotating-refresh-token>",
+  "renovarTokenEn": 3600
 }
 ```
 
 Requisitos:
 
-- Solicitar a Auth0 un access token con audience `http://localhost:8080`.
+- Solicitar a Auth0 un access token con el audience configurable de la API.
+- Reemplazar siempre access y refresh token después de renovar; el refresh
+  anterior queda invalidado.
 - No devolver ni aceptar un ID token como autorización de la API.
 - Validar issuer, firma, expiración y audience en Spring Security.
 - Responder `401` con un cuerpo genérico para credenciales inválidas.
@@ -94,13 +96,13 @@ La sesión debe:
 
 ## Orden sugerido para el siguiente agente
 
-1. Corregir el DTO y servicio de login del backend para devolver access token.
-2. Agregar validación de audience y pruebas de seguridad en Spring.
-3. Actualizar el BFF para consumir el nuevo contrato.
-4. Implementar sesión cifrada u opaca, expiración y logout.
-5. Incorporar refresh rotation o migrar a Universal Login.
-6. Añadir CSRF, rate limiting y encabezados de producción.
-7. Ejecutar pruebas E2E de login válido, inválido, expirado, logout y acceso
+1. Externalizar el audience y agregar su validación con pruebas en Spring.
+2. Agregar revocación backend del refresh token al cerrar sesión.
+3. Implementar una sesión cifrada u opaca en lugar de cookies con tokens OAuth.
+4. Migrar a Universal Login cuando el producto lo permita.
+5. Añadir CSRF, rate limiting y encabezados de producción.
+6. Ejecutar pruebas E2E de login válido, inválido, renovación, refresh expirado,
+   logout y acceso
    cruzado entre recepción y medicina.
 
 ## Criterio de cierre

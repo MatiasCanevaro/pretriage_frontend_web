@@ -16,7 +16,7 @@ Requirements: Node.js 20+, npm, and the backend at http://localhost:8080.
 - features/: workflows, adapters, schemas, and queries.
 - lib/api/: privacy-safe transport and normalized errors.
 - contracts/: OpenAPI snapshot and generated transport code.
-- proxy.ts: optimistic cookie-presence redirect for protected staff pages.
+- proxy.ts: protected-route guard and server-side access-token renewal.
 - app/api/staff/: privacy-safe BFF routes. Browser code never receives bearer tokens.
 - app/api/auth/: provisional login/logout against the backend.
 
@@ -53,11 +53,23 @@ issue trackers, logs or committed files.
 
 The login page sends credentials to the server-side route
 `POST /api/auth/login`. That route calls backend `POST /api/login` and
-stores the returned token in an HttpOnly, SameSite=Lax cookie. Browser
-JavaScript never receives the token and credentials are not persisted.
+stores the returned access token, rotating refresh token, and backend-provided
+renewal time in HttpOnly, SameSite=Lax session cookies. Browser JavaScript never
+receives the tokens and credentials are not persisted.
 
-This is an explicitly temporary integration because the backend returns an
-ID token and uses the Password Realm grant. See
+Before protected pages and `/api/staff/*` handlers run, `proxy.ts` renews access
+through backend `POST /api/renovar` when the current token has at most 60 seconds
+remaining. Every successful renewal atomically replaces both cookies because the
+backend rotates refresh tokens. An invalid refresh clears the complete session;
+a transient renewal failure keeps a still-valid access token and never destroys
+the refresh token. Logout clears all three session cookies.
+
+The public `/restablecer-contrasena` flow uses the server-side
+`POST /api/auth/password-reset` BFF for token request, validation, and password
+change. The one-time token and passwords remain only in component memory while
+the page is open; they are never stored in browser storage or added to a URL.
+
+This remains an explicitly temporary Password Realm integration. See
 `docs/authentication-hardening-plan.md` before considering it production-ready.
 
 ## Contract refresh

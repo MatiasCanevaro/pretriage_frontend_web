@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { SESSION_COOKIE_NAME } from "@/lib/session-cookie";
+import {
+  authTokenResponseSchema,
+  setSessionCookies,
+} from "@/lib/session-tokens";
+import { SERVICE_UNAVAILABLE_ERROR } from "@/lib/api/server";
 
 export const dynamic = "force-dynamic";
 
 const credentialsSchema = z.object({
   email: z.string().trim().email().max(254),
   password: z.string().min(1).max(256),
-});
-
-const tokenResponseSchema = z.object({
-  token: z.string().min(20),
 });
 
 export async function POST(request: Request) {
@@ -39,16 +39,30 @@ export async function POST(request: Request) {
     });
 
     if (!backendResponse.ok) {
+      if (backendResponse.status === 429) {
+        return NextResponse.json(
+          { message: "Realizaste demasiados intentos. Esperá unos minutos y volvé a intentar." },
+          { status: 429 },
+        );
+      }
+      if (backendResponse.status !== 400 && backendResponse.status !== 401) {
+        return NextResponse.json(
+          { message: SERVICE_UNAVAILABLE_ERROR },
+          { status: backendResponse.status >= 500 ? 502 : backendResponse.status },
+        );
+      }
       return NextResponse.json(
         { message: "El correo o la contraseña no son correctos." },
         { status: backendResponse.status === 401 ? 401 : 400 },
       );
     }
 
-    const parsed = tokenResponseSchema.safeParse(await backendResponse.json());
+    const parsed = authTokenResponseSchema.safeParse(
+      await backendResponse.json(),
+    );
     if (!parsed.success) {
       return NextResponse.json(
-        { message: "El backend devolvió una sesión inválida." },
+        { message: SERVICE_UNAVAILABLE_ERROR },
         { status: 502 },
       );
     }
@@ -57,18 +71,11 @@ export async function POST(request: Request) {
       { ok: true },
       { headers: { "Cache-Control": "no-store" } },
     );
-    response.cookies.set({
-      name: SESSION_COOKIE_NAME,
-      value: parsed.data.token,
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-    });
+    setSessionCookies(response, parsed.data);
     return response;
   } catch {
     return NextResponse.json(
-      { message: "No pudimos conectar con el servidor de PreTriage." },
+      { message: SERVICE_UNAVAILABLE_ERROR },
       { status: 502 },
     );
   }

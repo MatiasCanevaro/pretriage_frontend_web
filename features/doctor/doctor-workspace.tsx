@@ -214,7 +214,7 @@ export function DoctorWorkspace({
         updateRemoteState({ session, currentConsultation: null });
         setFeedback(
           action === "ausente"
-            ? "Paciente marcado como ausente y devuelto al flujo definido por backend."
+            ? "Paciente marcado como ausente y devuelto a la cola según el flujo configurado."
             : "Atención finalizada correctamente.",
         );
       }
@@ -428,7 +428,7 @@ export function DoctorWorkspace({
   return shell(
     <div className="page-stack">
       <header className="page-heading heading-row">
-        <div><p className="eyebrow">Sesión {session.estado?.toLowerCase()}</p><h1>Cola de pacientes</h1><p>El orden se obtiene directamente del backend y se actualiza cada 5 segundos.</p></div>
+        <div><p className="eyebrow">Sesión {session.estado?.toLowerCase()}</p><h1>Cola de pacientes</h1><p>El orden se actualiza automáticamente cada 5 segundos.</p></div>
         <button className="button button-primary" disabled={session.estado !== "ACTIVA" || callNext.isPending} onClick={() => callNext.mutate()}>
           {callNext.isPending ? "Llamando…" : "Llamar próximo"}
         </button>

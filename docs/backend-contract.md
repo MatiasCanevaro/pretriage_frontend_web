@@ -10,6 +10,10 @@
 - API title/version: Pretriage API / v1
 - Snapshot size: 63 paths and 54 schemas
 
+The exported snapshot predates the password-recovery endpoints described below.
+Refresh it from a running backend before regenerating transport types; the backend
+was not available locally during this frontend integration.
+
 The running backend, its source, and the exported OpenAPI are authoritative. Do not pin frontend work to a backend commit and never invent missing contracts.
 
 ## Refresh the snapshot
@@ -38,12 +42,34 @@ Validate that the file parses as JSON before generating transport types.
 ## Authentication and identity
 
 - `POST /api/login` and `POST /api/register` are public.
+- `POST /api/renovar` is public and accepts `{ refreshToken }`. Login and renewal
+  return `{ token, refreshToken, renovarTokenEn }`, where `renovarTokenEn` is the
+  access-token lifetime in seconds. Refresh rotation invalidates the previous
+  refresh token, so the web must replace both HttpOnly cookies on every success;
+  an invalid or expired refresh returns `401` and ends the local session.
+- Password recovery is public and uses the following backend endpoints:
+  `POST /api/auth/cambio-contrasenia/solicitar-token`,
+  `GET /api/auth/cambio-contrasenia/validar?token=...`, and
+  `POST /api/auth/cambio-contrasenia`.
 - All staff workflow endpoints require an issuer-validated bearer JWT.
 - The backend identifies the caller through the JWT `sub` and resolves the corresponding `Recepcionista` or `Medico` in its own database.
 - Spring Security currently requires authentication globally but does not authorize staff routes from JWT role claims. Role and ownership checks happen in the service layer through the authenticated subject.
-- The provisional frontend calls backend `POST /api/login` through a server-side Next.js route and stores its returned ID token in an HttpOnly cookie.
-- This temporary ID-token-as-bearer contract is known to be incorrect for production. The migration requirements are recorded in `docs/authentication-hardening-plan.md`.
+- The provisional frontend calls backend `POST /api/login` through a server-side
+  Next.js route and stores access and refresh tokens in separate HttpOnly cookies.
+  The Next proxy renews through `/api/renovar` before protected requests when the
+  access token is within 60 seconds of expiry.
+- This Password Realm contract still requires production hardening. The migration
+  requirements are recorded in `docs/authentication-hardening-plan.md`.
 - Tokens must never be written to localStorage, logs, analytics, or URLs.
+
+The token request accepts `email` and always returns a generic message to avoid
+account enumeration. Its current response fields are `mensaje` and
+`tiempoExpiracion` (a `LocalTime` duration such as `00:15:00`). A new request
+invalidates prior pending tokens, and the backend limits known accounts to three
+requests per hour. Validation returns `valido: true` for a pending, unexpired
+token; invalid, expired, or already-used tokens return `400`. Password change
+accepts only `token` and `nuevaContrasenia` and consumes the token after success.
+The web adds password confirmation locally and never sends it to the backend.
 
 ## Reception contract
 
