@@ -3,7 +3,9 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BotonCierreSesion } from "@/components/boton-cierre-sesion";
 import { Brand } from "@/components/brand";
+import { GuardiaSesionProtegida } from "@/components/guardia-sesion-protegida";
 
 type Hospital = { id: number; nombre: string; administradoresActivos: number };
 type Invitation = { emailEnviado?: boolean; tokenEntregaUnica?: string | null };
@@ -44,8 +46,8 @@ export function PlatformAdminWorkspace({ userName }: { userName: string }) {
     invite.mutate({ hospitalId, email: String(form.get("email") ?? "") });
   }
 
-  return <main className="public-shell platform-admin-shell"><section className="workspace-card platform-admin-card">
-    <header className="platform-admin-header"><Brand /><div><p className="eyebrow">Administración de plataforma</p><h1>Hospitales</h1><p className="muted">Sesión iniciada como {userName}. Invitá al primer administrador de cada institución.</p></div><div className="acciones-admin-plataforma"><Link className="button button-secondary" href="/">Hospitales y módulos</Link><form action="/api/auth/logout" method="post"><button className="button button-secondary" type="submit">Cerrar sesión</button></form></div></header>
+  return <main className="public-shell platform-admin-shell"><GuardiaSesionProtegida /><section className="workspace-card platform-admin-card">
+    <header className="platform-admin-header"><Brand /><div><p className="eyebrow">Administración de plataforma</p><h1>Hospitales</h1><p className="muted">Sesión iniciada como {userName}. Invitá al primer administrador de cada institución.</p></div><div className="acciones-admin-plataforma"><Link className="button button-secondary" href="/">Hospitales y módulos</Link><BotonCierreSesion clase="button button-secondary" etiqueta="Cerrar sesión" etiquetaEnProceso="Cerrando…" /></div></header>
     {query.isLoading ? <div className="loading-card">Cargando hospitales…</div> : null}
     {query.error ? <div className="notice notice-error" role="alert">{query.error.message}</div> : null}
     {message ? <div className="notice notice-success"><strong>{message}</strong>{token ? <><br />En desarrollo, copiá una sola vez:<br /><code className="secret-code">{token}</code></> : null}</div> : null}
