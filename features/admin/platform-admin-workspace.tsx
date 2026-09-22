@@ -45,7 +45,7 @@ export function PlatformAdminWorkspace({ userName }: { userName: string }) {
   }
 
   return <main className="public-shell platform-admin-shell"><section className="workspace-card platform-admin-card">
-    <header className="platform-admin-header"><Brand /><div><p className="eyebrow">Administración de plataforma</p><h1>Hospitales</h1><p className="muted">Sesión iniciada como {userName}. Invitá al primer administrador de cada institución.</p></div><Link className="button button-secondary" href="/">Hospitales y módulos</Link></header>
+    <header className="platform-admin-header"><Brand /><div><p className="eyebrow">Administración de plataforma</p><h1>Hospitales</h1><p className="muted">Sesión iniciada como {userName}. Invitá al primer administrador de cada institución.</p></div><div className="acciones-admin-plataforma"><Link className="button button-secondary" href="/">Hospitales y módulos</Link><form action="/api/auth/logout" method="post"><button className="button button-secondary" type="submit">Cerrar sesión</button></form></div></header>
     {query.isLoading ? <div className="loading-card">Cargando hospitales…</div> : null}
     {query.error ? <div className="notice notice-error" role="alert">{query.error.message}</div> : null}
     {message ? <div className="notice notice-success"><strong>{message}</strong>{token ? <><br />En desarrollo, copiá una sola vez:<br /><code className="secret-code">{token}</code></> : null}</div> : null}
