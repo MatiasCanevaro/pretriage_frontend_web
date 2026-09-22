@@ -1,13 +1,20 @@
 import { NextResponse } from "next/server";
 import { apiErrorResponse } from "@/lib/api/route";
 import { backendRequest } from "@/lib/api/server";
+import { z } from "zod";
 
 type Body = Record<string, unknown> & { operation?: string; hospitalId?: number };
 
 function id(value: unknown, name: string) {
-  if (typeof value !== "number" || !Number.isSafeInteger(value)) throw new TypeError(`${name} inválido`);
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value <= 0) throw new TypeError(`${name} inválido`);
   return value;
 }
+
+const namedSpecialtySchema = z.object({
+  nombre: z.string().trim().min(1).max(100),
+  especialidadId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+});
+const updateSectorSchema = namedSpecialtySchema.extend({ activa: z.boolean() });
 
 export async function POST(request: Request) {
   try {
@@ -51,26 +58,46 @@ export async function POST(request: Request) {
           method: "DELETE",
         }));
       }
-      case "createRoom":
-        return NextResponse.json(await backendRequest(`${base}/configuracion/salas`, {
-          method: "POST", body: JSON.stringify(body.room),
+      case "createSector":
+        return NextResponse.json(await backendRequest(`${base}/configuracion/sectores`, {
+          method: "POST", body: JSON.stringify(namedSpecialtySchema.parse(body.sector)),
         }));
+      case "updateSector": {
+        const sectorId = id(body.sectorId, "sectorId");
+        return NextResponse.json(await backendRequest(`${base}/configuracion/sectores/${sectorId}`, {
+          method: "PUT", body: JSON.stringify(updateSectorSchema.parse(body.sector)),
+        }));
+      }
+      case "deleteSector": {
+        const sectorId = id(body.sectorId, "sectorId");
+        await backendRequest(`${base}/configuracion/sectores/${sectorId}`, { method: "DELETE" });
+        return new NextResponse(null, { status: 204 });
+      }
+      case "createRoom": {
+        const sectorId = id(body.sectorId, "sectorId");
+        return NextResponse.json(await backendRequest(`${base}/configuracion/sectores/${sectorId}/salas`, {
+          method: "POST", body: JSON.stringify(namedSpecialtySchema.parse(body.room)),
+        }));
+      }
       case "updateRoom": {
         const roomId = id(body.roomId, "roomId");
-        return NextResponse.json(await backendRequest(`${base}/configuracion/salas/${roomId}`, {
-          method: "PUT", body: JSON.stringify(body.room),
+        const sectorId = id(body.sectorId, "sectorId");
+        return NextResponse.json(await backendRequest(`${base}/configuracion/sectores/${sectorId}/salas/${roomId}`, {
+          method: "PUT", body: JSON.stringify(namedSpecialtySchema.parse(body.room)),
         }));
       }
       case "setRoomActive": {
         const roomId = id(body.roomId, "roomId");
-        return NextResponse.json(await backendRequest(`${base}/configuracion/salas/${roomId}/estado`, {
-          method: "PATCH", body: JSON.stringify({ activa: body.active }),
+        const sectorId = id(body.sectorId, "sectorId");
+        return NextResponse.json(await backendRequest(`${base}/configuracion/sectores/${sectorId}/salas/${roomId}/estado`, {
+          method: "PATCH", body: JSON.stringify({ activa: z.boolean().parse(body.active) }),
         }));
       }
       default:
         return NextResponse.json({ message: "Operación inválida." }, { status: 400 });
     }
   } catch (error) {
+    if (error instanceof z.ZodError) return NextResponse.json({ message: "Revisá el nombre, la especialidad y el estado ingresados." }, { status: 400 });
     if (error instanceof TypeError) return NextResponse.json({ message: error.message }, { status: 400 });
     return apiErrorResponse(error);
   }

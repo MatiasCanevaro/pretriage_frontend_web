@@ -108,11 +108,12 @@ const emptyPatient: PatientFormValues = {
   codigoEspecialidad: "",
 };
 
-export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles }: {
+export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles, canSwitchHospital }: {
   userName: string;
   hospitalId: number;
   hospitalName: string;
   roles: HospitalRole[];
+  canSwitchHospital: boolean;
 }) {
   const queryClient = useQueryClient();
   const [stage, setStage] = useState<Stage>("dashboard");
@@ -284,6 +285,7 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles }
 
   const shell = (content: React.ReactNode, section = "Inicio") => (
     <StaffShell
+      canSwitchHospital={canSwitchHospital}
       role="Recepción" userName={userName} section={section}
       sessionLabel={session ? `${session.hospitalNombre ?? "Hospital"} · Activa` : undefined}
       hospitalId={session?.hospitalId ?? hospitalId}

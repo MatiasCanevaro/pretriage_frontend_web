@@ -153,15 +153,28 @@ must not enter logs, analytics, or client persistence.
 - Medical invitations capture registration number, national/provincial type and
   issuing jurisdiction. Provincial jurisdiction uses the bundled Argentine
   province catalog; national credentials are sent as `NACION`.
+- Invitations group recipient email, role cards with permission descriptions,
+  conditional medical credentials and enabled specialties selected by name.
+  Validation preserves entered values and submission waits for authoritative
+  refresh. Delivery feedback retains the one-time secret in memory when provided.
 - `/invitaciones/aceptar` consumes the one-time secret from the URL fragment, moves
   it immediately into memory and removes it from browser history. New users choose
   their password; existing users accept with their authenticated account.
 - Browser calls use privacy-safe BFF routes and TanStack Query owns admin remote
   state.
+- Hospital configuration supports specialties, sector creation/editing/state/deletion,
+  and room management grouped by sector. Sector deletion also deletes its rooms
+  and requires confirmation. The current endpoint contract and backend limitations
+  are recorded in `docs/backend-contract.md`.
+- Sector creation requires a confirmation dialog showing the name and specialty;
+  cancellation preserves the draft and sends no request. Errors remain in the
+  dialog for retry, and pending creation cannot be submitted twice.
 
-The current development backend has no mail provider. The panel therefore displays
-the secret once so a developer can construct `/invitaciones/aceptar#<secreto>`.
-Production must send that fragment link through a configured mail adapter and must
-remove the manual secret display. Authorization Code + PKCE, access-token audience,
-MFA, mail delivery, platform screens, room/specialty administration and patient
+In local email mode the panel displays the secret once so a developer can construct
+`/invitaciones/aceptar#<secreto>`. SMTP mode sends that fragment link through the
+configured provider and never returns the secret to this panel. Brevo configuration
+is documented in the backend's `docs/07-local-development.md`; credentials remain
+in its ignored `.env`. Reliable delivery retries through a persistent outbox remain
+pending. Authorization Code + PKCE, access-token audience,
+MFA, platform screens and patient
 claiming remain pending.

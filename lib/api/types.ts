@@ -4,7 +4,13 @@ export type ApiSchemas = components["schemas"];
 export type ReceptionHospital = ApiSchemas["RecepcionHospitalDTO"];
 export type ReceptionSession = ApiSchemas["SesionRecepcionDTO"];
 export type ReceptionPatient = ApiSchemas["PacienteRecepcionDTO"];
-export type ReceptionAdmission = ApiSchemas["AdmisionRecepcionDTO"];
+export type ReceptionAdmission = Omit<ApiSchemas["AdmisionRecepcionDTO"], "estimacion"> & {
+  // Older backend exports included a range; preserve read compatibility with them.
+  estimacion?: ApiSchemas["TiempoEstimadoAtencionResponse"] & {
+    fechaHoraAtencionEstimadaDesde?: string;
+    fechaHoraAtencionEstimadaHasta?: string;
+  };
+};
 export type ReceptionAdmissionDetail =
   ApiSchemas["AdmisionRecepcionDetalleDTO"];
 export type CreateReceptionAdmission = Omit<

@@ -49,6 +49,24 @@ secret once for local handoff. SMTP mode sends the fragment link and never expos
 the secret in the administrative response. Do not paste invitation secrets into
 issue trackers, logs or committed files.
 
+The staff invitation form groups email, additive role permissions and conditional
+medical credentials. Medical specialties come from the hospital's enabled catalog,
+not manually entered IDs. Inline errors preserve the draft; submission remains
+blocked through mutation and authoritative refetch. Delivery feedback distinguishes
+sent mail, a one-time local secret, and delivery still pending.
+
+Hospital administration sidebar entries are real in-page links to invitation
+creation, configuration, personnel, invitations and audit. Fragment links preserve
+the hospital query parameter and unsent form values; the selected destination is
+marked with `aria-current="location"`. There is no placeholder “Inicio” entry.
+Headings accept keyboard focus and leave space for the sticky navigation on mobile.
+
+The shared staff header shows “Cambiar hospital” only when `/api/staff/me` returns
+more than one distinct active hospital with an available staff module. Multiple
+roles in the same hospital do not enable this action. The admin heading has no
+duplicate “Cambiar espacio” link. Module navigation remains available within the
+current hospital.
+
 ## Provisional authentication
 
 The login page sends credentials to the server-side route
@@ -71,6 +89,33 @@ the page is open; they are never stored in browser storage or added to a URL.
 
 This remains an explicitly temporary Password Realm integration. See
 `docs/authentication-hardening-plan.md` before considering it production-ready.
+
+## Hospital sectors and rooms
+
+Hospital administrators use `/admin/hospital` to enable specialties, create/edit
+sectors (name, specialty and active state), and manage rooms grouped under each
+sector. Room specialty follows the selected sector. Deactivating a sector also
+deactivates its rooms; deleting one requires confirmation because its rooms are
+deleted as well. Mutations use `/api/staff/admin` and reload authoritative
+configuration and audit through TanStack Query.
+
+Creating a sector first opens a confirmation dialog with its name and specialty.
+Enabling a hospital specialty also requires confirmation showing its name; cancel
+or Escape sends no request. Both flows share pending/error handling and restore
+keyboard focus after closing.
+Cancel/Escape preserves the draft without sending a request. Confirmation stays
+open during the mutation and refetch; an error allows correction or retry. See
+`docs/admin-ux-plan.md` for the UX decisions and browser acceptance cases.
+
+Use a backend with the sector-scoped configuration contract documented in
+`docs/backend-contract.md`. The old `/configuracion/salas` paths are no longer used.
+Verify with synthetic hospital data: empty sectors, creation, duplicate-name and
+patient/session conflicts, editing specialty/state, room creation/rename/state,
+deletion cancellation and successful deletion, then reload the page. Check that
+errors preserve form entries, pending controls cannot submit twice, and sector
+deactivation refreshes every affected room. Specialty deactivation must work without
+any sectors and must reject active rooms of that specialty anywhere in the hospital;
+the form must not request a sector.
 
 ## Contract refresh
 

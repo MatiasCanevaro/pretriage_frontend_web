@@ -14,3 +14,10 @@ export function defaultHospitalRoute(membership: StaffMembership) {
   }
   return null;
 }
+
+export function hasMultipleHospitals(memberships: StaffMembership[]) {
+  const hospitalIds = new Set(memberships
+    .filter((membership) => membership.estado === "ACTIVA" && defaultHospitalRoute(membership))
+    .map((membership) => membership.hospitalId));
+  return hospitalIds.size > 1;
+}

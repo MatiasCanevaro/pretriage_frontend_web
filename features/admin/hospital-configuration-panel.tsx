@@ -1,0 +1,294 @@
+"use client";
+
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import styles from "./hospital-configuration-panel.module.css";
+import type { ConfigurationOperation, HospitalConfiguration, Room, Sector, Specialty } from "./hospital-configuration";
+
+type Configure = (operation: ConfigurationOperation, onSuccess?: () => void, onError?: (error: Error) => void) => void;
+type Confirmation =
+  | { kind: "sector"; nombre: string; especialidadId: number; especialidadNombre: string }
+  | { kind: "specialty"; especialidadId: number; especialidadNombre: string };
+
+function nameFrom(form: HTMLFormElement, field: string) {
+  const input = form.elements.namedItem(field) as HTMLInputElement;
+  const name = input.value.trim();
+  input.setCustomValidity(name ? "" : "Ingresá un nombre.");
+  input.reportValidity();
+  return name;
+}
+
+function NameField({ name, label, value, disabled }: { name: string; label: string; value?: string; disabled: boolean }) {
+  return <label className="field">{label}<input name={name} defaultValue={value} required maxLength={100} disabled={disabled} onInput={(event) => event.currentTarget.setCustomValidity("")} /></label>;
+}
+
+function SpecialtyField({ specialties, value, disabled }: { specialties: Specialty[]; value?: number; disabled: boolean }) {
+  return (
+    <label className="field">Especialidad
+      <select name="specialtyId" defaultValue={value ?? ""} required disabled={disabled} onChange={(event) => event.currentTarget.setCustomValidity("")}>
+        <option value="">Seleccionar especialidad</option>
+        {specialties.filter((item) => item.habilitada || item.id === value).map((item) => (
+          <option value={item.id} key={item.id} disabled={!item.habilitada}>{item.nombre}{item.habilitada ? "" : " (no habilitada)"}</option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function RoomForm({ room, sector, pending, specialtyEnabled, configure }: { room?: Room; sector: Sector; pending: boolean; specialtyEnabled: boolean; configure: Configure }) {
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending || !specialtyEnabled) return;
+    const form = event.currentTarget;
+    const nombre = nameFrom(form, "roomName");
+    if (!nombre) return;
+    const payload = { nombre, especialidadId: sector.especialidadId };
+    configure(room
+      ? { operation: "updateRoom", sectorId: sector.id, roomId: room.id, room: payload }
+      : { operation: "createRoom", sectorId: sector.id, room: payload },
+    () => { if (!room) form.reset(); });
+  }
+
+  return (
+    <form className="form-panel admin-room" onSubmit={submit} aria-label={room ? `Sala ${room.nombre}` : `Agregar sala en ${sector.nombre}`}>
+      <div className="form-grid">
+        <NameField name="roomName" label={room ? "Nombre de la sala" : "Nueva sala"} value={room?.nombre} disabled={pending || !specialtyEnabled} />
+        <label className="field">Especialidad de la sala<input value={sector.especialidadNombre} readOnly /></label>
+      </div>
+      {room && room.especialidadId !== sector.especialidadId ? <p className="notice notice-warning">Esta sala figura con {room.especialidadNombre}. Al guardar, se actualizará a la especialidad del sector.</p> : null}
+      <div className="record-actions">
+        {room ? <span className="status-chip">{room.activa ? "Activa" : "Inactiva"}</span> : null}
+        <button className={room ? "button button-secondary" : "button button-primary"} type="submit" disabled={pending || !specialtyEnabled}>{room ? "Guardar sala" : "Crear sala"}</button>
+        {room ? <button className={room.activa ? "button button-danger-ghost" : "button button-secondary"} type="button" disabled={pending || (!room.activa && !specialtyEnabled)} onClick={() => configure({ operation: "setRoomActive", sectorId: sector.id, roomId: room.id, active: !room.activa })}>{room.activa ? "Desactivar sala" : "Activar sala"}</button> : null}
+      </div>
+    </form>
+  );
+}
+
+function SectorCard({ sector, rooms, specialties, pending, configure }: { sector: Sector; rooms: Room[]; specialties: Specialty[]; pending: boolean; configure: Configure }) {
+  const specialtyEnabled = specialties.some((item) => item.id === sector.especialidadId && item.habilitada);
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending) return;
+    const form = event.currentTarget;
+    const nombre = nameFrom(form, "sectorName");
+    if (!nombre) return;
+    const data = new FormData(form);
+    configure({ operation: "updateSector", sectorId: sector.id, sector: {
+      nombre, especialidadId: Number(data.get("specialtyId")), activa: data.get("active") === "true",
+    } });
+  }
+
+  function remove() {
+    if (pending) return;
+    if (window.confirm(`Se eliminará el sector «${sector.nombre}» y sus ${rooms.length} sala(s). Esta acción no se puede deshacer. ¿Continuar?`)) {
+      configure({ operation: "deleteSector", sectorId: sector.id });
+    }
+  }
+
+  return (
+    <section className="admin-sector" aria-labelledby={`sector-${sector.id}`}>
+      <div className="panel-heading">
+        <div><h3 id={`sector-${sector.id}`}>{sector.nombre}</h3><p>{sector.especialidadNombre} · {rooms.length} sala(s)</p></div>
+        <span className="status-chip">{sector.activa ? "Activo" : "Inactivo"}</span>
+      </div>
+      <form className="form-panel" onSubmit={submit} aria-label={`Editar sector ${sector.nombre}`} key={`${sector.nombre}:${sector.especialidadId}:${sector.activa}`}>
+        <div className="form-grid">
+          <NameField name="sectorName" label="Nombre del sector" value={sector.nombre} disabled={pending} />
+          <SpecialtyField specialties={specialties} value={sector.especialidadId} disabled={pending} />
+          <label className="field">Estado<select name="active" defaultValue={String(sector.activa)} disabled={pending}><option value="true">Activo</option><option value="false">Inactivo</option></select></label>
+        </div>
+        <p className="notice notice-info">Al guardar un sector inactivo, también se desactivan sus salas. Reactivarlo no vuelve a activar las salas automáticamente.</p>
+        {!specialtyEnabled ? <p className="notice notice-warning">Habilitá la especialidad o elegí otra habilitada antes de guardar el sector.</p> : null}
+        <div className="record-actions">
+          <button className="button button-secondary" type="submit" disabled={pending}>Guardar sector</button>
+          <button className="button button-danger-ghost" type="button" disabled={pending} onClick={remove}>Eliminar sector</button>
+        </div>
+      </form>
+      <h4>Salas de {sector.nombre}</h4>
+      {!sector.activa ? <p className="notice notice-warning">El sector está inactivo y no participa en la asignación de nuevos pacientes.</p> : null}
+      {!specialtyEnabled ? <p className="notice notice-warning">Habilitá la especialidad del sector para crear, guardar o activar salas.</p> : null}
+      {rooms.length === 0 ? <p className="notice notice-info">Este sector todavía no tiene salas.</p> : null}
+      {rooms.map((room) => <RoomForm key={`${room.id}:${room.nombre}:${room.especialidadId}:${room.activa}`} room={room} sector={sector} pending={pending} specialtyEnabled={specialtyEnabled} configure={configure} />)}
+      <RoomForm sector={sector} pending={pending} specialtyEnabled={specialtyEnabled} configure={configure} />
+    </section>
+  );
+}
+
+export function HospitalConfigurationPanel({ configuration, pending, error, configure }: { configuration?: HospitalConfiguration; pending: boolean; error: Error | null; configure: Configure }) {
+  const specialties = configuration?.especialidades ?? [];
+  const sectors = configuration?.sectores ?? [];
+  const rooms = configuration?.salas ?? [];
+  const enabled = specialties.filter((item) => item.habilitada);
+  const unavailable = !configuration || !Array.isArray(configuration.sectores);
+  const disabled = pending || unavailable;
+  const unassignedRooms = rooms.filter((room) => !sectors.some((sector) => sector.id === room.sectorId));
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  const [confirmationBusy, setConfirmationBusy] = useState(false);
+  const [confirmationError, setConfirmationError] = useState<Error | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const confirmationDialogRef = useRef<HTMLDialogElement>(null);
+  const createFormRef = useRef<HTMLFormElement>(null);
+  const createButtonRef = useRef<HTMLButtonElement>(null);
+  const confirmationTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const confirmationBusyRef = useRef(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  function restoreConfirmationFocus() {
+    window.setTimeout(() => {
+      const button = confirmationTriggerRef.current;
+      if (button?.isConnected && !button.disabled) button.focus();
+      else headingRef.current?.focus();
+    }, 0);
+  }
+
+  const closeConfirmationDialog = () => {
+    if (confirmationBusyRef.current || confirmationBusy || pending) return;
+    confirmationDialogRef.current?.close();
+    setConfirmation(null);
+    setConfirmationError(null);
+    setConfirmationBusy(false);
+    confirmationBusyRef.current = false;
+    restoreConfirmationFocus();
+  };
+
+  useEffect(() => {
+    const dialog = confirmationDialogRef.current;
+    if (!dialog) return;
+    if (confirmation && !dialog.open) {
+      dialog.showModal();
+      dialog.querySelector<HTMLButtonElement>("[data-dialog-cancel]")?.focus();
+    } else if (!confirmation && dialog.open) {
+      dialog.close();
+    }
+  }, [confirmation]);
+
+  function confirmOperation() {
+    if (!confirmation || confirmationBusy || confirmationBusyRef.current || pending) return;
+    const currentSpecialty = specialties.find((item) => item.id === confirmation.especialidadId);
+    if (!currentSpecialty || (confirmation.kind === "sector" && !currentSpecialty.habilitada) || (confirmation.kind === "specialty" && currentSpecialty.habilitada)) {
+      setConfirmationError(new Error(confirmation.kind === "sector"
+        ? "La especialidad ya no está habilitada. Volvé a editar el sector."
+        : "La configuración cambió. Cerrá este diálogo y revisá las especialidades del hospital."));
+      return;
+    }
+    confirmationBusyRef.current = true;
+    setConfirmationBusy(true);
+    setConfirmationError(null);
+    configure(
+      confirmation.kind === "sector"
+        ? { operation: "createSector", sector: { nombre: confirmation.nombre, especialidadId: confirmation.especialidadId } }
+        : { operation: "enableSpecialty", specialtyId: confirmation.especialidadId },
+      () => {
+        if (confirmation.kind === "sector") createFormRef.current?.reset();
+        setConfirmation(null);
+        setConfirmationError(null);
+        setConfirmationBusy(false);
+        setSuccessMessage(confirmation.kind === "sector" ? "Sector creado correctamente." : `${confirmation.especialidadNombre} se agregó a las especialidades del hospital.`);
+        confirmationBusyRef.current = false;
+        restoreConfirmationFocus();
+      },
+      (requestError) => {
+        setConfirmationError(requestError);
+        setConfirmationBusy(false);
+        confirmationBusyRef.current = false;
+      },
+    );
+  }
+
+  function createSector(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (disabled) return;
+    const form = event.currentTarget;
+    const nombre = nameFrom(form, "sectorName");
+    if (!nombre) return;
+    const especialidadId = Number(new FormData(form).get("specialtyId"));
+    const specialty = specialties.find((item) => item.id === especialidadId);
+    if (!specialty?.habilitada) {
+      const select = form.elements.namedItem("specialtyId") as HTMLSelectElement;
+      select.setCustomValidity("Elegí una especialidad habilitada.");
+      select.reportValidity();
+      return;
+    }
+    createFormRef.current = form;
+    setConfirmationError(null);
+    setSuccessMessage(null);
+    confirmationTriggerRef.current = createButtonRef.current;
+    setConfirmation({ kind: "sector", nombre, especialidadId, especialidadNombre: specialty.nombre });
+  }
+
+  function enableSpecialty(specialty: Specialty, trigger: HTMLButtonElement) {
+    if (disabled || confirmationBusyRef.current) return;
+    confirmationTriggerRef.current = trigger;
+    setConfirmationError(null);
+    setSuccessMessage(null);
+    setConfirmation({ kind: "specialty", especialidadId: specialty.id, especialidadNombre: specialty.nombre });
+  }
+
+  function disableSpecialty(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (disabled) return;
+    const form = new FormData(event.currentTarget);
+    configure({ operation: "disableSpecialty", specialtyId: Number(form.get("specialtyId")) });
+  }
+
+  return (
+    <section className="panel admin-configuration" aria-labelledby="hospital-configuration-heading" aria-busy={pending}>
+      <div className="panel-heading"><div><h2 ref={headingRef} tabIndex={-1} id="hospital-configuration-heading">Especialidades, sectores y salas</h2><p>Organizá los sectores del hospital y las salas de cada especialidad.</p></div></div>
+      {error ? <div className="notice notice-error" role="alert">{error.message}</div> : null}
+      {pending ? <p role="status">Guardando cambios y actualizando la configuración…</p> : null}
+      {successMessage ? <p className="notice notice-success" role="status">{successMessage}</p> : null}
+      {configuration && unavailable ? <p className="notice notice-error" role="alert">No se recibió la información de sectores. Actualizá el servicio antes de configurar las salas.</p> : null}
+      <div className="form-panel">
+        <h3>Especialidades del hospital</h3>
+        <div className="role-options">{specialties.map((specialty) => specialty.habilitada
+          ? <span className="status-chip" key={specialty.id}>✓ {specialty.nombre}</span>
+          : <button className="button button-secondary" type="button" disabled={disabled} key={specialty.id} onClick={(event) => enableSpecialty(specialty, event.currentTarget)}>Habilitar {specialty.nombre}</button>)}</div>
+        {enabled.length > 0 ? <details>
+          <summary>Deshabilitar una especialidad del hospital</summary>
+          <form className="form-panel admin-room" onSubmit={disableSpecialty} aria-label="Deshabilitar especialidad">
+            <p className="notice notice-info">La especialidad dejará de ofrecerse en este hospital. Primero desactivá sus salas en todos los sectores. Podés volver a habilitarla más adelante.</p>
+            <div className="form-grid">
+              <SpecialtyField specialties={specialties} disabled={disabled} />
+            </div>
+            <button className="button button-danger-ghost" type="submit" disabled={disabled}>Deshabilitar especialidad</button>
+          </form>
+        </details> : null}
+      </div>
+      <form className="form-panel" onSubmit={createSector} aria-label="Agregar sector">
+        <h3>Agregar sector</h3>
+        <div className="form-grid">
+          <NameField name="sectorName" label="Nombre del sector" disabled={disabled || enabled.length === 0} />
+          <SpecialtyField specialties={specialties} disabled={disabled || enabled.length === 0} />
+        </div>
+        {enabled.length === 0 && !unavailable ? <p className="notice notice-info">Habilitá una especialidad para crear el primer sector.</p> : null}
+        <button ref={createButtonRef} className="button button-primary" type="submit" disabled={disabled || enabled.length === 0}>Crear sector</button>
+      </form>
+      {!unavailable && sectors.length === 0 ? <p className="notice notice-info">Todavía no hay sectores. Creá uno para agregar sus salas.</p> : null}
+      {sectors.map((sector) => <SectorCard key={sector.id} sector={sector} rooms={rooms.filter((room) => room.sectorId === sector.id)} specialties={specialties} pending={disabled} configure={configure} />)}
+      {unassignedRooms.length > 0 ? <div className="form-panel"><h3>Salas sin sector disponible</h3><p className="notice notice-warning">Estas salas necesitan una asignación de sector para poder administrarlas. Solicitá la regularización de su configuración.</p>{unassignedRooms.map((room) => <div className="record-row" key={room.id}><strong>{room.nombre}</strong><span>{room.especialidadNombre} · {room.activa ? "Activa" : "Inactiva"}</span></div>)}</div> : null}
+      <dialog ref={confirmationDialogRef} className={styles.dialog} onCancel={(event) => { event.preventDefault(); closeConfirmationDialog(); }} onKeyDown={(event) => {
+        if (event.key !== "Tab") return;
+        const buttons = event.currentTarget.querySelectorAll<HTMLButtonElement>("button:not(:disabled)");
+        const first = buttons[0];
+        const last = buttons[buttons.length - 1];
+        if (!first || (event.shiftKey ? document.activeElement === first : document.activeElement === last)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first)?.focus();
+        }
+      }} aria-labelledby="configuration-dialog-title" aria-describedby="configuration-dialog-note">
+        {confirmation ? <div className={styles.dialogContent}>
+          <h2 id="configuration-dialog-title">{confirmation.kind === "sector" ? "Crear sector" : "Agregar especialidad"}</h2>
+          <dl className={styles.summary}>{confirmation.kind === "sector" ? <div><dt>Nombre</dt><dd>{confirmation.nombre}</dd></div> : null}<div><dt>Especialidad</dt><dd>{confirmation.especialidadNombre}</dd></div></dl>
+          <p id="configuration-dialog-note" className="notice notice-info">{confirmation.kind === "sector" ? "Se creará activo. Después podrás agregar sus salas." : "Se habilitará en este hospital para asignarla a sectores y personal médico."}</p>
+          {confirmationError ? <p className="notice notice-error" role="alert">{confirmationError.message}</p> : null}
+          {confirmationBusy || pending ? <p role="status">{confirmation.kind === "sector" ? "Creando sector y actualizando la configuración…" : "Agregando especialidad y actualizando la configuración…"}</p> : null}
+          <div className={styles.actions}>
+            <button type="button" className="button button-secondary" data-dialog-cancel disabled={confirmationBusy || pending} onClick={closeConfirmationDialog}>{confirmation.kind === "sector" ? "Volver a editar" : "Cancelar"}</button>
+            <button type="button" className="button button-primary" disabled={confirmationBusy || pending} onClick={confirmOperation}>{confirmation.kind === "sector" ? "Confirmar creación" : "Confirmar especialidad"}</button>
+          </div>
+        </div> : null}
+      </dialog>
+    </section>
+  );
+}

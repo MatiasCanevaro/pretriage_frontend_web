@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/perfil": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPerfil"];
+        put: operations["updatePerfil"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/pacientes/{idPaciente}/obrasocial/credenciales/{idCredencial}": {
         parameters: {
             query?: never;
@@ -68,7 +84,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/hospitales/{hospitalId}/configuracion/salas/{salaId}": {
+    "/api/admin/hospitales/{hospitalId}/configuracion/sectores/{sectorId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["actualizarSector"];
+        post?: never;
+        delete: operations["eliminarSector"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/hospitales/{hospitalId}/configuracion/sectores/{sectorId}/salas/{salaId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -78,6 +110,22 @@ export interface paths {
         get?: never;
         put: operations["actualizarSala"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/renovar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["renovar"];
         delete?: never;
         options?: never;
         head?: never;
@@ -212,7 +260,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/paciente/consulta/sigo-asistiendo": {
+    "/api/paciente/consulta/cola/reincorporar": {
         parameters: {
             query?: never;
             header?: never;
@@ -221,14 +269,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["sigoAsistiendo"];
+        post: operations["reincorporarseACola"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/paciente/consulta/llegue": {
+    "/api/paciente/consulta/cola/pausa-manual": {
         parameters: {
             query?: never;
             header?: never;
@@ -237,14 +285,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["llegue"];
+        post: operations["pausarColaManualmente"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/paciente/consulta/estoy-atrasado": {
+    "/api/paciente/consulta/cola/atraso/renovar": {
         parameters: {
             query?: never;
             header?: never;
@@ -253,14 +301,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["estoyAtrasado"];
+        post: operations["renovarConfirmacionAtraso"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/paciente/consulta/ausentarme": {
+    "/api/paciente/consulta/cola/atraso/confirmar": {
         parameters: {
             query?: never;
             header?: never;
@@ -269,7 +317,23 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["ausentarme"];
+        post: operations["confirmarAtraso"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/paciente/consulta/cancelar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["cancelarSeleccion"];
         delete?: never;
         options?: never;
         head?: never;
@@ -484,6 +548,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/estudios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerTodosLosEstudiosClinicosMetadata"];
+        put?: never;
+        post: operations["subirEstudioClinico"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/chat": {
         parameters: {
             query?: never;
@@ -516,7 +596,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/atencion/hospital": {
+    "/api/auth/cambio-contrasenia": {
         parameters: {
             query?: never;
             header?: never;
@@ -524,6 +604,38 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        put?: never;
+        post: operations["cambiarContrasenia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/cambio-contrasenia/solicitar-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["solicitarToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/atencion/hospital": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerHospitalSeleccionado"];
         put?: never;
         post: operations["seleccionarHospital"];
         delete?: never;
@@ -564,7 +676,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/hospitales/{hospitalId}/configuracion/salas": {
+    "/api/admin/hospitales/{hospitalId}/configuracion/sectores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["crearSector"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/hospitales/{hospitalId}/configuracion/sectores/{sectorId}/salas": {
         parameters: {
             query?: never;
             header?: never;
@@ -612,7 +740,7 @@ export interface paths {
         patch: operations["actualizarEstado"];
         trace?: never;
     };
-    "/api/admin/hospitales/{hospitalId}/configuracion/salas/{salaId}/estado": {
+    "/api/admin/hospitales/{hospitalId}/configuracion/sectores/{sectorId}/salas/{salaId}/estado": {
         parameters: {
             query?: never;
             header?: never;
@@ -916,7 +1044,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/hospitales/{hospitalId}/salas": {
+    "/api/hospitales/{idHospital}/tiempo-arribo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["calcularTiempoArriboAlHospital"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/hospitales/{hospitalId}/sectores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerSectores"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/hospitales/{hospitalId}/sectores/{sectorId}/salas": {
         parameters: {
             query?: never;
             header?: never;
@@ -940,6 +1100,38 @@ export interface paths {
             cookie?: never;
         };
         get: operations["obtenerHospitalesCercanos"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/estudios/{idEstudio}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerUnEstudiosClinicoMetadata"];
+        put?: never;
+        post?: never;
+        delete: operations["eliminarEstudioClinico"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/estudios/{idEstudio}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["descargarEstudiosClinico"];
         put?: never;
         post?: never;
         delete?: never;
@@ -972,6 +1164,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getChatActual"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/cambio-contrasenia/validar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["validarToken"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1096,6 +1304,32 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        PerfilUsuarioDTO: {
+            nombre: string;
+            apellido: string;
+            /** @enum {string} */
+            tipoDocumento: "LIBRETA_CIVICA" | "LIBRETA_ENROLAMIENTO" | "DNI";
+            numeroDocumento: string;
+            /** Format: date */
+            fechaNacimiento?: string;
+            /** @enum {string} */
+            generoBiologico: "MASCULINO" | "FEMENINO" | "X";
+            /** @enum {string} */
+            generoConElQueSeIdentifica: "MASCULINO" | "FEMENINO" | "X";
+            /** Format: email */
+            email?: string;
+            telefono: string;
+            calle: string;
+            alturaDireccion: string;
+            piso?: string;
+            codigoPostal: string;
+            ciudad: string;
+            provincia: string;
+            /** Format: double */
+            peso: number;
+            /** Format: int32 */
+            alturaPersona: number;
+        };
         CredencialRequest: {
             nombreObraSocial: string;
             numeroAfiliado: string;
@@ -1166,6 +1400,22 @@ export interface components {
             estado?: "INVITADA" | "ACTIVA" | "SUSPENDIDA" | "REVOCADA";
             roles?: ("ADMIN_HOSPITAL" | "MEDICO" | "RECEPCIONISTA")[];
         };
+        ActualizarSectorRequest: {
+            nombre: string;
+            /** Format: int64 */
+            especialidadId: number;
+            activa: boolean;
+        };
+        SectorHospitalResponse: {
+            /** Format: int64 */
+            id?: number;
+            nombre?: string;
+            activa?: boolean;
+            /** Format: int64 */
+            especialidadId?: number;
+            especialidadCodigo?: string;
+            especialidadNombre?: string;
+        };
         GuardarSalaRequest: {
             nombre: string;
             /** Format: int64 */
@@ -1177,9 +1427,21 @@ export interface components {
             nombre?: string;
             activa?: boolean;
             /** Format: int64 */
+            sectorId?: number;
+            sectorNombre?: string;
+            /** Format: int64 */
             especialidadId?: number;
             especialidadCodigo?: string;
             especialidadNombre?: string;
+        };
+        RefreshTokenRequest: {
+            refreshToken: string;
+        };
+        LoginResponseDTO: {
+            token?: string;
+            refreshToken?: string;
+            /** Format: int64 */
+            renovarTokenEn?: number;
         };
         RegisterRequest: {
             nombre: string;
@@ -1231,7 +1493,7 @@ export interface components {
             piso?: string;
             ciudad: string;
             provincia: string;
-            codigoPostal: string;
+            codigoPostal?: string;
             codigoEspecialidad: string;
         };
         AdmisionRecepcionDTO: {
@@ -1246,6 +1508,9 @@ export interface components {
             estado?: "INICIADA" | "FORMULARIO_COMPLETO" | "FINALIZADA" | "CANCELADA";
             /** @enum {string} */
             prioridad?: "RIESGO_VITAL_INMEDIATO" | "MUY_URGENTE" | "URGENTE" | "NORMAL" | "NO_URGENTE";
+            /** Format: int64 */
+            sectorId?: number;
+            nombreSector?: string;
             estimacion?: components["schemas"]["TiempoEstimadoAtencionResponse"];
         };
         TiempoEstimadoAtencionResponse: {
@@ -1253,10 +1518,6 @@ export interface components {
             consultaId?: number;
             /** Format: date-time */
             fechaHoraAtencionEstimada?: string;
-            /** Format: date-time */
-            fechaHoraAtencionEstimadaDesde?: string;
-            /** Format: date-time */
-            fechaHoraAtencionEstimadaHasta?: string;
             hayMedicosActivos?: boolean;
             /** Format: int32 */
             medicosActivos?: number;
@@ -1268,6 +1529,10 @@ export interface components {
             pacientesAntes?: number;
             /** Format: int32 */
             minutosPromedioAtencion?: number;
+            /** Format: int64 */
+            sectorId?: number;
+            nombreSector?: string;
+            codigoSala?: string;
             mensaje?: string;
         };
         DolorReportadoRequest: {
@@ -1366,10 +1631,25 @@ export interface components {
             tipoPausa?: "AUSENTE_AL_LLAMADO" | "ESPERA_MANUAL" | "ATRASADO_CONFIRMADO";
             /** Format: date-time */
             fechaHoraLimiteRespuesta?: string;
+            /** Format: int64 */
+            sectorId?: number;
+            nombreSector?: string;
             tiempoEstimadoAtencion?: components["schemas"]["TiempoEstimadoAtencionResponse"];
         };
         ObraSocialDTO: {
             nombre: string;
+        };
+        CambioContraseniaToken: {
+            /** Format: int64 */
+            id?: number;
+            usuario?: components["schemas"]["UsuarioAuth"];
+            token?: string;
+            /** Format: date-time */
+            fechaHoraCreacion?: string;
+            /** Format: date-time */
+            fechaHoraExpiracion?: string;
+            /** @enum {string} */
+            estado?: "PENDIENTE" | "CAMBIADO" | "EXPIRO" | "INVALIDADO";
         };
         Coordenada: {
             /** Format: int64 */
@@ -1413,6 +1693,7 @@ export interface components {
             /** Format: int64 */
             tamanoArchivo?: number;
             rutaArchivo?: string;
+            activo?: boolean;
         };
         ObraSocial: {
             /** Format: int64 */
@@ -1459,11 +1740,14 @@ export interface components {
             correoElectronico?: string;
             /** @enum {string} */
             rol?: "ADMIN" | "USER";
+            cambiosDeContrasenia?: components["schemas"]["CambioContraseniaToken"][];
         };
         IniciarSesionMedicaRequest: {
             /** Format: int64 */
             hospitalId: number;
             codigoEspecialidad: string;
+            /** Format: int64 */
+            sectorId: number;
             /** Format: int64 */
             salaId: number;
         };
@@ -1473,6 +1757,9 @@ export interface components {
             /** Format: int64 */
             hospitalId?: number;
             codigoEspecialidad?: string;
+            /** Format: int64 */
+            sectorId?: number;
+            nombreSector?: string;
             /** Format: int64 */
             salaId?: number;
             /** @enum {string} */
@@ -1486,6 +1773,9 @@ export interface components {
             pacienteId?: number;
             nombrePaciente?: string;
             apellidoPaciente?: string;
+            numeroDocumento?: string;
+            /** @enum {string} */
+            tipoDocumento?: "LIBRETA_CIVICA" | "LIBRETA_ENROLAMIENTO" | "DNI";
             /** Format: int64 */
             salaId?: number;
             nombreSala?: string;
@@ -1528,13 +1818,31 @@ export interface components {
             respuesta?: components["schemas"]["MensajeDTO"];
             atencionEstimada?: components["schemas"]["TiempoEstimadoAtencionResponse"];
         };
+        CambiarContraseniaRequest: {
+            token: string;
+            nuevaContrasenia: string;
+        };
+        SolicitarTokenCambioContraseniaRequest: {
+            /** Format: email */
+            email: string;
+        };
+        SolicitarTokenCambioContraseniaResponse: {
+            mensaje?: string;
+            tiempoExpiracion?: string;
+        };
         SeleccionHospitalRequest: {
             placeId: string;
             codigoEspecialidad: string;
         };
+        GuardarSectorRequest: {
+            nombre: string;
+            /** Format: int64 */
+            especialidadId: number;
+        };
         ConfiguracionHospitalResponse: {
             especialidades?: components["schemas"]["EspecialidadHospitalResponse"][];
             salas?: components["schemas"]["SalaHospitalResponse"][];
+            sectores?: components["schemas"]["SectorHospitalResponse"][];
         };
         EspecialidadHospitalResponse: {
             /** Format: int64 */
@@ -1605,6 +1913,7 @@ export interface components {
             plan?: string;
             /** Format: date */
             fechaVencimiento?: string;
+            nombreObraSocial?: string;
         };
         SesionMedicaActualDTO: {
             sesion?: components["schemas"]["SesionAtencionMedicaDTO"];
@@ -1616,7 +1925,7 @@ export interface components {
             /** Format: int64 */
             pacienteId?: number;
             nombreArchivo?: string;
-            tipoArchivo?: string;
+            tipoArchivo: string;
             extensionArchivo?: string;
             descripcion?: string;
             /** Format: date-time */
@@ -1670,20 +1979,61 @@ export interface components {
             venceEn?: string;
             cuentaExistente?: boolean;
         };
-        SalaDTO: {
+        CombinacionRutasDTO: {
+            nombreLinea?: string;
+            tipoTransporte?: string;
+            indicaciones?: string;
+        };
+        TiempoEstimadoArriboHospitalResponse: {
+            transporte?: string;
+            tiempoEstimadoArribo?: string;
+            /** Format: int64 */
+            idHospital?: number;
+            /** Format: int32 */
+            distanciaMetros?: number;
+            combinacionesLineas?: components["schemas"]["CombinacionRutasDTO"][];
+            polylineCode?: string;
+        };
+        SectorDTO: {
             /** Format: int64 */
             id?: number;
             nombre?: string;
         };
+        SalaDTO: {
+            /** Format: int64 */
+            id?: number;
+            nombre: string;
+        };
         HospitalCercanoDTO: {
+            /** Format: int64 */
+            idHospital?: number;
             placeId?: string;
             nombre?: string;
             direccion?: string;
             especialidades?: components["schemas"]["EspecialidadMedicaDTO"][];
+            tiempoEstimadoArriboMejorRuta?: string;
+            /** Format: int32 */
+            pacientesEnCola?: number;
+            disponible?: boolean;
+            /** Format: int64 */
+            minutosEsperaEstimados?: number;
+            /** Format: date-time */
+            fechaHoraAtencionEstimada?: string;
         };
         SseEmitter: {
             /** Format: int64 */
             timeout?: number;
+        };
+        HospitalSeleccionadoResponse: {
+            /** Format: int64 */
+            idHospital?: number;
+            placeId?: string;
+            nombre?: string;
+            direccion?: string;
+            /** Format: int64 */
+            sectorId?: number;
+            nombreSector?: string;
+            salas?: components["schemas"]["SalaDTO"][];
         };
         PersonalResponse: {
             /** Format: int64 */
@@ -1714,6 +2064,50 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getPerfil: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PerfilUsuarioDTO"];
+                };
+            };
+        };
+    };
+    updatePerfil: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PerfilUsuarioDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PerfilUsuarioDTO"];
+                };
+            };
+        };
+    };
     editarCredencialRecepcionista: {
         parameters: {
             query?: never;
@@ -1874,12 +2268,61 @@ export interface operations {
             };
         };
     };
+    actualizarSector: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+                sectorId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActualizarSectorRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SectorHospitalResponse"];
+                };
+            };
+        };
+    };
+    eliminarSector: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+                sectorId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     actualizarSala: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 hospitalId: number;
+                sectorId: number;
                 salaId: number;
             };
             cookie?: never;
@@ -1897,6 +2340,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SalaHospitalResponse"];
+                };
+            };
+        };
+    };
+    renovar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LoginResponseDTO"];
                 };
             };
         };
@@ -2121,7 +2588,7 @@ export interface operations {
             };
         };
     };
-    sigoAsistiendo: {
+    reincorporarseACola: {
         parameters: {
             query?: never;
             header?: never;
@@ -2141,7 +2608,7 @@ export interface operations {
             };
         };
     };
-    llegue: {
+    pausarColaManualmente: {
         parameters: {
             query?: never;
             header?: never;
@@ -2161,7 +2628,7 @@ export interface operations {
             };
         };
     };
-    estoyAtrasado: {
+    renovarConfirmacionAtraso: {
         parameters: {
             query?: never;
             header?: never;
@@ -2181,7 +2648,27 @@ export interface operations {
             };
         };
     };
-    ausentarme: {
+    confirmarAtraso: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EstadoConsultaPacienteDTO"];
+                };
+            };
+        };
+    };
+    cancelarSeleccion: {
         parameters: {
             query?: never;
             header?: never;
@@ -2471,9 +2958,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": {
-                        [key: string]: string;
-                    };
+                    "*/*": components["schemas"]["LoginResponseDTO"];
                 };
             };
         };
@@ -2526,6 +3011,58 @@ export interface operations {
             };
         };
     };
+    obtenerTodosLosEstudiosClinicosMetadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EstudioClinicoDTO"][];
+                };
+            };
+        };
+    };
+    subirEstudioClinico: {
+        parameters: {
+            query: {
+                tipoArchivo: string;
+                descripcion?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
     iniciarChat: {
         parameters: {
             query?: never;
@@ -2568,6 +3105,76 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ChatTurnResponse"];
+                };
+            };
+        };
+    };
+    cambiarContrasenia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CambiarContraseniaRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
+    solicitarToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SolicitarTokenCambioContraseniaRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SolicitarTokenCambioContraseniaResponse"];
+                };
+            };
+        };
+    };
+    obtenerHospitalSeleccionado: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HospitalSeleccionadoResponse"];
                 };
             };
         };
@@ -2665,12 +3272,39 @@ export interface operations {
             };
         };
     };
+    crearSector: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospitalId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuardarSectorRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SectorHospitalResponse"];
+                };
+            };
+        };
+    };
     crearSala: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 hospitalId: number;
+                sectorId: number;
             };
             cookie?: never;
         };
@@ -2770,6 +3404,7 @@ export interface operations {
             header?: never;
             path: {
                 hospitalId: number;
+                sectorId: number;
                 salaId: number;
             };
             cookie?: never;
@@ -3026,7 +3661,9 @@ export interface operations {
     };
     obtenerHistorialClinicoMasActuales: {
         parameters: {
-            query?: never;
+            query?: {
+                limite?: number;
+            };
             header?: never;
             path: {
                 pacienteId: number;
@@ -3176,6 +3813,56 @@ export interface operations {
             };
         };
     };
+    calcularTiempoArriboAlHospital: {
+        parameters: {
+            query: {
+                transporte: string;
+                latitud: number;
+                longitud: number;
+            };
+            header?: never;
+            path: {
+                idHospital: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TiempoEstimadoArriboHospitalResponse"][];
+                };
+            };
+        };
+    };
+    obtenerSectores: {
+        parameters: {
+            query: {
+                codigoEspecialidad: string;
+            };
+            header?: never;
+            path: {
+                hospitalId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SectorDTO"][];
+                };
+            };
+        };
+    };
     obtenerSalas: {
         parameters: {
             query: {
@@ -3184,6 +3871,7 @@ export interface operations {
             header?: never;
             path: {
                 hospitalId: number;
+                sectorId: number;
             };
             cookie?: never;
         };
@@ -3206,6 +3894,8 @@ export interface operations {
                 latitud: number;
                 longitud: number;
                 codigoEspecialidad: string;
+                transporte?: string;
+                ordenarPor?: string;
             };
             header?: never;
             path?: never;
@@ -3220,6 +3910,74 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["HospitalCercanoDTO"][];
+                };
+            };
+        };
+    };
+    obtenerUnEstudiosClinicoMetadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                idEstudio: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EstudioClinicoDTO"];
+                };
+            };
+        };
+    };
+    eliminarEstudioClinico: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                idEstudio: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
+    descargarEstudiosClinico: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                idEstudio: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
                 };
             };
         };
@@ -3262,6 +4020,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ChatDTO"];
+                };
+            };
+        };
+    };
+    validarToken: {
+        parameters: {
+            query: {
+                token: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

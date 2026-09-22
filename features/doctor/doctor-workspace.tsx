@@ -78,11 +78,13 @@ export function DoctorWorkspace({
   hospitalId,
   hospitalName,
   roles,
+  canSwitchHospital,
 }: {
   userName: string;
   hospitalId: number;
   hospitalName: string;
   roles: HospitalRole[];
+  canSwitchHospital: boolean;
 }) {
   const queryClient = useQueryClient();
   const [assignmentKey, setAssignmentKey] = useState("");
@@ -252,6 +254,7 @@ export function DoctorWorkspace({
   const section = current ? "Atenciones" : session ? "Cola de pacientes" : "Inicio";
   const shell = (content: React.ReactNode) => (
     <StaffShell
+      canSwitchHospital={canSwitchHospital}
       role="Médico"
       userName={userName}
       section={section}

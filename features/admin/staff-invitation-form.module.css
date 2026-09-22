@@ -1,0 +1,81 @@
+.form {
+  display: grid;
+  gap: 24px;
+}
+
+.section {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.section legend {
+  padding: 0;
+  font-size: .92rem;
+  font-weight: 760;
+}
+
+.hint {
+  margin: -5px 0 2px;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.5;
+}
+
+.field { display: grid; gap: 7px; font-size: .78rem; font-weight: 680; }
+.field input, .field select {
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd6e4;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink);
+}
+.field input[aria-invalid="true"], .field select[aria-invalid="true"] { border-color: var(--red); }
+.error { margin: -4px 0 0; color: var(--red); font-size: .74rem; font-weight: 560; }
+
+.roleGrid, .specialtyGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.checkCard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 10px;
+  min-height: 86px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+}
+.checkCard:has(input:checked) { border-color: #8db8ee; background: var(--blue-soft); }
+.checkCard:has(input:focus-visible) { outline: 3px solid rgba(23, 105, 224, .28); outline-offset: 2px; }
+.checkCard input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--blue); }
+.checkCopy { display: grid; gap: 4px; }
+.checkCopy strong { font-size: .8rem; }
+.checkCopy span { color: var(--muted); font-size: .72rem; line-height: 1.4; }
+
+.medicalFields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.wide { grid-column: 1 / -1; }
+.catalogEmpty { margin: 0; padding: 12px 14px; border: 1px solid #ead49c; border-radius: 10px; background: var(--amber-soft); color: #73501a; font-size: .78rem; line-height: 1.5; }
+.catalogEmpty a { color: inherit; font-weight: 700; }
+.staleNotice { padding: 12px 14px; border: 1px solid #ead49c; border-radius: 10px; background: var(--amber-soft); color: #73501a; font-size: .78rem; line-height: 1.5; }
+.staleNotice button { margin-left: 4px; padding: 0; border: 0; background: transparent; color: inherit; font-weight: 750; text-decoration: underline; cursor: pointer; }
+.search { display: grid; gap: 7px; max-width: 420px; font-size: .78rem; font-weight: 680; }
+.search input { min-height: 44px; padding: 10px 12px; border: 1px solid #cbd6e4; border-radius: 9px; background: #fff; color: var(--ink); }
+.actions { display: grid; gap: 12px; }
+.actions button { min-height: 46px; }
+.status { margin: 0; }
+
+@media (max-width: 760px) {
+  .roleGrid, .specialtyGrid { grid-template-columns: 1fr; }
+  .medicalFields { grid-template-columns: 1fr; }
+  .wide { grid-column: auto; }
+}

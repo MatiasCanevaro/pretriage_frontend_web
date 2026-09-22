@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { ReceptionWorkspace } from "@/features/reception/reception-workspace";
 import { getSession } from "@/lib/session";
 import { getStaffContext } from "@/lib/staff-context";
+import { hasMultipleHospitals } from "@/lib/workspace-routing";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,7 @@ export default async function ReceptionPage({
       hospitalId={membership.hospitalId}
       hospitalName={membership.hospitalNombre}
       roles={membership.roles}
+      canSwitchHospital={hasMultipleHospitals(context?.membresias ?? [])}
     />
   );
 }
