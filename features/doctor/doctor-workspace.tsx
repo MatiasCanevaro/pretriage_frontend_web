@@ -8,6 +8,7 @@ import type {
   ConsultationPretriage,
   DoctorBootstrap,
   MedicalRoom,
+  MedicalSector,
   MedicalSession,
   QueueConsultation,
 } from "@/lib/api/types";
@@ -89,6 +90,7 @@ export function DoctorWorkspace({
   const queryClient = useQueryClient();
   const [assignmentKey, setAssignmentKey] = useState("");
   const [roomId, setRoomId] = useState("");
+  const [sectorId, setSectorId] = useState<Number>(-1);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingPriority, setEditingPriority] = useState(false);
   const [correctedPriority, setCorrectedPriority] = useState("");
@@ -116,7 +118,8 @@ export function DoctorWorkspace({
   const activeHospitalName = session
     ? selectedAssignment?.nombreHospital ?? hospitalName
     : hospitalName;
-  const rooms = useQuery({
+
+  const sectors = useQuery({
     queryKey: [
       "doctor",
       "rooms",
@@ -124,12 +127,31 @@ export function DoctorWorkspace({
       selectedAssignment?.codigoEspecialidad,
     ],
     queryFn: () =>
-      apiClient<MedicalRoom[]>(doctorApi, "rooms", {
+      apiClient<MedicalSector[]>(doctorApi, "sectors", {
         hospitalId: selectedAssignment!.hospitalId,
         specialty: selectedAssignment!.codigoEspecialidad,
       }),
     enabled: Boolean(
       selectedAssignment?.hospitalId && selectedAssignment.codigoEspecialidad,
+  ),
+  });
+  const rooms = useQuery({
+    queryKey: [
+      "doctor",
+      "rooms",
+      selectedAssignment?.hospitalId,
+      selectedAssignment?.codigoEspecialidad,
+      sectorId,
+    ],
+    queryFn: () =>{
+      if (sectorId == -1) return;
+      return apiClient<MedicalRoom[]>(doctorApi, "rooms", {
+        hospitalId: selectedAssignment!.hospitalId,
+        specialty: selectedAssignment!.codigoEspecialidad,
+        sectorId: sectorId,
+      })},
+    enabled: Boolean(
+      selectedAssignment?.hospitalId && selectedAssignment.codigoEspecialidad && sectorId != -1,
     ),
   });
   const queue = useQuery({
@@ -166,6 +188,7 @@ export function DoctorWorkspace({
       apiClient<MedicalSession>(doctorApi, "startSession", {
         hospitalId: selectedAssignment?.hospitalId,
         specialty: selectedAssignment?.codigoEspecialidad,
+        sectorId: Number(sectorId),
         roomId: Number(roomId),
     }),
     onSuccess: (created) => {
@@ -289,12 +312,12 @@ export function DoctorWorkspace({
         <header className="page-heading">
           <p className="eyebrow">Inicio de jornada</p>
           <h1>Iniciar sesión médica</h1>
-          <p>Vas a atender en <strong>{activeHospitalName}</strong>. Seleccioná tu especialidad y consultorio.</p>
+          <p>Vas a atender en <strong>{activeHospitalName}</strong>. Seleccioná tu especialidad, sector y consultorio.</p>
         </header>
         <section className="panel form-panel">
           <label className="field">
             <span>Especialidad</span>
-            <select value={assignmentKey} onChange={(event) => { setAssignmentKey(event.target.value); setRoomId(""); }}>
+            <select value={assignmentKey} onChange={(event) => { setAssignmentKey(event.target.value); setSectorId(-1); setRoomId(""); }}>
               <option value="">Seleccionar</option>
               {assignments.map((item) => (
                 <option key={item.codigoEspecialidad} value={item.codigoEspecialidad}>
@@ -309,6 +332,13 @@ export function DoctorWorkspace({
             </div>
           ) : null}
           <label className="field">
+            <span>Sector</span>
+            <select disabled={!selectedAssignment || sectors.isPending} value={String(sectorId)} onChange={(event) => setSectorId(Number(event.target.value))}>
+              <option value="">{sectors.isPending ? "Cargando…" : "Seleccionar"}</option>
+              {(sectors.data ?? []).map((sector) => <option key={sector.id} value={sector.id}>{sector.nombre}</option>)}
+            </select>
+          </label>
+          <label className="field">
             <span>Consultorio</span>
             <select disabled={!selectedAssignment || rooms.isPending} value={roomId} onChange={(event) => setRoomId(event.target.value)}>
               <option value="">{rooms.isPending ? "Cargando…" : "Seleccionar"}</option>
@@ -316,7 +346,7 @@ export function DoctorWorkspace({
             </select>
           </label>
           <div className="notice notice-info">
-            Sólo se mostrarán pacientes de {activeHospitalName}, para la especialidad y el consultorio seleccionados.
+            Sólo se mostrarán pacientes de {activeHospitalName}, para la especialidad, sector y consultorio seleccionados.
           </div>
           <button className="button button-primary button-wide" disabled={!selectedAssignment || !roomId || startSession.isPending} onClick={() => startSession.mutate()}>
             {startSession.isPending ? "Iniciando…" : "Iniciar sesión"}

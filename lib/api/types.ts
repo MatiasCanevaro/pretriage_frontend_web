@@ -21,6 +21,7 @@ export type ReceptionTriageForm =
   ApiSchemas["FormularioTriageRecepcionRequest"];
 export type DoctorAssignment = ApiSchemas["AsignacionMedicoDTO"];
 export type MedicalRoom = ApiSchemas["SalaDTO"];
+export type MedicalSector = ApiSchemas["SalaDTO"];
 export type MedicalSession = ApiSchemas["SesionAtencionMedicaDTO"];
 export type CurrentMedicalState = ApiSchemas["SesionMedicaActualDTO"];
 export type QueueConsultation = ApiSchemas["ConsultaLlamadaDTO"];

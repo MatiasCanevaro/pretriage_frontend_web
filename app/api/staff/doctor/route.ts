@@ -39,13 +39,24 @@ export async function POST(request: Request) {
           currentConsultation: current.consultaActual ?? null,
         } satisfies DoctorBootstrap);
       }
-      case "rooms": {
+      case "sectors": {
         const hospitalId = numberValue(body.hospitalId, "hospitalId");
         const specialty =
           typeof body.specialty === "string" ? body.specialty : "";
         return NextResponse.json(
           await backendRequest<MedicalRoom[]>(
-            `/api/hospitales/${hospitalId}/salas?codigoEspecialidad=${encodeURIComponent(specialty)}`,
+            `/api/hospitales/${hospitalId}/sectores?codigoEspecialidad=${encodeURIComponent(specialty)}`,
+          ),
+        );
+      }
+      case "rooms": {
+        const hospitalId = numberValue(body.hospitalId, "hospitalId");
+        const specialty =
+          typeof body.specialty === "string" ? body.specialty : "";
+        const sectorId = numberValue(body.sectorId, "sectorId");
+        return NextResponse.json(
+          await backendRequest<MedicalRoom[]>(
+            `/api/hospitales/${hospitalId}/sectores/${sectorId}/salas?codigoEspecialidad=${encodeURIComponent(specialty)}`,
           ),
         );
       }
@@ -57,6 +68,7 @@ export async function POST(request: Request) {
               hospitalId: numberValue(body.hospitalId, "hospitalId"),
               codigoEspecialidad:
                 typeof body.specialty === "string" ? body.specialty : "",
+              sectorId: numberValue(body.sectorId, "sectorId"),
               salaId: numberValue(body.roomId, "roomId"),
             }),
           }),
