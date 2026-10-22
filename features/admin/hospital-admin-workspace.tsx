@@ -47,7 +47,7 @@ export function HospitalAdminWorkspace({ hospitalId, hospitalName, userName, rol
     },
   });
   const configure = useMutation({ mutationFn: (payload: ConfigurationOperation) => adminCall({ hospitalId, ...payload }), onSettled: refresh });
-  return <StaffShell role="Administración" userName={userName} section="Personal" sectionNavigation={<HospitalAdminNavigation />} hospitalId={hospitalId} hospitalName={hospitalName} roles={roles} canSwitchHospital={canSwitchHospital}><div className="page-stack admin-workspace">
+  return <StaffShell role="Administración" userName={userName} section="Personal" sectionNavigation={<HospitalAdminNavigation hospitalId={hospitalId} />} hospitalId={hospitalId} hospitalName={hospitalName} roles={roles} canSwitchHospital={canSwitchHospital}><div className="page-stack admin-workspace">
     <header className="page-heading"><p className="eyebrow">Administración hospitalaria</p><h1>{hospitalName}</h1><p>Gestioná el personal, los sectores y las salas de este hospital.</p></header>
     {query.isLoading ? <div className="loading-card">Cargando administración…</div> : null}{query.error ? <div className="notice notice-error" role="alert">{query.error.message}</div> : null}
     <section className="panel"><div className="panel-heading"><div><h2 id="admin-invite" tabIndex={-1}>Invitar personal</h2><p>El acceso sólo se activa cuando la persona acepta.</p></div></div><StaffInvitationForm configuration={query.data?.configuracion} disabled={invite.isPending} error={invite.error} deliveryMessage={deliveryMessage} createdToken={createdToken} onSubmit={async (invitation) => { setCreatedToken(null); setDeliveryMessage(null); await invite.mutateAsync(invitation); }} /></section>

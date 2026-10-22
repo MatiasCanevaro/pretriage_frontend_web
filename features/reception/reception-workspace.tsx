@@ -8,6 +8,7 @@ import { SearchableCombobox } from "@/components/searchable-combobox";
 import { StaffShell } from "@/components/staff-shell";
 import argentinaLocations from "@/lib/geo/argentina-locations.json";
 import { apiClient, ClientApiError } from "@/lib/api/client";
+import { nivelGravedadLabel } from "@/lib/severity";
 import type {
   CreateReceptionAdmission,
   ReceptionAdmission,
@@ -62,13 +63,7 @@ function draftKey(id: number) {
 }
 
 function priorityLabel(priority?: string) {
-  return ({
-    RIESGO_VITAL_INMEDIATO: "Riesgo vital inmediato",
-    MUY_URGENTE: "Muy urgente",
-    URGENTE: "Urgente",
-    NORMAL: "Normal",
-    NO_URGENTE: "No urgente",
-  }[priority ?? ""] ?? "Pendiente");
+  return nivelGravedadLabel(priority) ?? "Pendiente";
 }
 
 function activeAttentionLabel(state?: ReceptionPatient["estadoAtencionEnCurso"]) {

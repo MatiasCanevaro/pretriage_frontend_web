@@ -347,7 +347,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["obtenerObrasSociales"];
         put?: never;
         post: operations["cargarObraSocialAdmin"];
         delete?: never;
@@ -622,6 +622,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["solicitarToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/cambio-contrasenia/actual": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["cambiarContraseniaAutenticado"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1236,6 +1252,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/hospitales/{hospitalId}/metricas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenerMetricas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/hospitales/{hospitalId}/configuracion": {
         parameters: {
             query?: never;
@@ -1643,9 +1675,9 @@ export interface components {
             /** Format: int64 */
             id?: number;
             usuario?: components["schemas"]["UsuarioAuth"];
-            token?: string;
             /** Format: date-time */
             fechaHoraCreacion?: string;
+            token?: string;
             /** Format: date-time */
             fechaHoraExpiracion?: string;
             /** @enum {string} */
@@ -1817,6 +1849,7 @@ export interface components {
         ChatTurnResponse: {
             respuesta?: components["schemas"]["MensajeDTO"];
             atencionEstimada?: components["schemas"]["TiempoEstimadoAtencionResponse"];
+            origenRespuesta?: string;
         };
         CambiarContraseniaRequest: {
             token: string;
@@ -1829,6 +1862,10 @@ export interface components {
         SolicitarTokenCambioContraseniaResponse: {
             mensaje?: string;
             tiempoExpiracion?: string;
+        };
+        CambiarContraseniaAutenticadaRequest: {
+            contraseniaActual: string;
+            contraseniaNueva: string;
         };
         SeleccionHospitalRequest: {
             placeId: string;
@@ -1914,6 +1951,9 @@ export interface components {
             /** Format: date */
             fechaVencimiento?: string;
             nombreObraSocial?: string;
+        };
+        ObraSocialResponse: {
+            nombre?: string;
         };
         SesionMedicaActualDTO: {
             sesion?: components["schemas"]["SesionAtencionMedicaDTO"];
@@ -2019,6 +2059,10 @@ export interface components {
             minutosEsperaEstimados?: number;
             /** Format: date-time */
             fechaHoraAtencionEstimada?: string;
+            /** Format: double */
+            valoracionPromedio?: number;
+            /** Format: int32 */
+            cantidadValoraciones?: number;
         };
         SseEmitter: {
             /** Format: int64 */
@@ -2044,6 +2088,50 @@ export interface components {
             /** @enum {string} */
             estado?: "INVITADA" | "ACTIVA" | "SUSPENDIDA" | "REVOCADA";
             roles?: ("ADMIN_HOSPITAL" | "MEDICO" | "RECEPCIONISTA")[];
+        };
+        DistribucionNivelItem: {
+            nivel?: string;
+            /** Format: int64 */
+            cantidad?: number;
+            /** Format: double */
+            porcentaje?: number;
+        };
+        MetricasHospitalResponse: {
+            /** Format: int64 */
+            hospitalId?: number;
+            /** Format: date */
+            desde?: string;
+            /** Format: date */
+            hasta?: string;
+            /** Format: int64 */
+            ingresaronACola?: number;
+            /** Format: int64 */
+            pacientesAtendidos?: number;
+            /** Format: int64 */
+            pacientesNoAtendidos?: number;
+            /** Format: double */
+            esperaPromedioMinutos?: number;
+            /** Format: double */
+            porcentajeAtendidos?: number;
+            distribucionGravedadBot?: components["schemas"]["DistribucionNivelItem"][];
+            distribucionGravedadMedico?: components["schemas"]["DistribucionNivelItem"][];
+            /** Format: int64 */
+            pretriageRealizado?: number;
+            /** Format: int64 */
+            pretriageNoRealizado?: number;
+            /** Format: double */
+            porcentajePretriageRealizado?: number;
+            serieDiaria?: components["schemas"]["SerieDiariaItem"][];
+        };
+        SerieDiariaItem: {
+            /** Format: date */
+            fecha?: string;
+            /** Format: int64 */
+            ingresados?: number;
+            /** Format: int64 */
+            atendidos?: number;
+            /** Format: double */
+            esperaPromedioMinutos?: number;
         };
         AuditoriaResponse: {
             /** Format: int64 */
@@ -2688,6 +2776,26 @@ export interface operations {
             };
         };
     };
+    obtenerObrasSociales: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ObraSocialResponse"][];
+                };
+            };
+        };
+    };
     cargarObraSocialAdmin: {
         parameters: {
             query?: never;
@@ -3155,6 +3263,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SolicitarTokenCambioContraseniaResponse"];
+                };
+            };
+        };
+    };
+    cambiarContraseniaAutenticado: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CambiarContraseniaAutenticadaRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: string;
+                    };
                 };
             };
         };
@@ -4108,6 +4242,31 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PersonalResponse"][];
+                };
+            };
+        };
+    };
+    obtenerMetricas: {
+        parameters: {
+            query: {
+                desde: string;
+                hasta: string;
+            };
+            header?: never;
+            path: {
+                hospitalId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MetricasHospitalResponse"];
                 };
             };
         };

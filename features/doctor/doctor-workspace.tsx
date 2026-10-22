@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { StaffShell } from "@/components/staff-shell";
 import { apiClient } from "@/lib/api/client";
+import { NIVELES_GRAVEDAD_BOT, nivelGravedadClass, nivelGravedadLabel } from "@/lib/severity";
 import type {
   ConsultationPretriage,
   DoctorBootstrap,
@@ -42,32 +43,12 @@ function patientName(consultation: QueueConsultation) {
     .join(" ") || "Nombre no disponible";
 }
 
-const priorities = [
-  "RIESGO_VITAL_INMEDIATO",
-  "MUY_URGENTE",
-  "URGENTE",
-  "NORMAL",
-  "NO_URGENTE",
-] as const;
-
 function priorityLabel(value?: string) {
-  return ({
-    RIESGO_VITAL_INMEDIATO: "Riesgo vital inmediato",
-    MUY_URGENTE: "Muy urgente",
-    URGENTE: "Urgente",
-    NORMAL: "Normal",
-    NO_URGENTE: "No urgente",
-  }[value ?? ""] ?? value ?? "Sin definir");
+  return nivelGravedadLabel(value) ?? value ?? "Sin definir";
 }
 
 function priorityClass(value?: string) {
-  return ({
-    RIESGO_VITAL_INMEDIATO: "priority-critical",
-    MUY_URGENTE: "priority-critical",
-    URGENTE: "priority-urgent",
-    NORMAL: "priority-normal",
-    NO_URGENTE: "priority-low",
-  }[value ?? ""] ?? "priority-unknown");
+  return nivelGravedadClass(value) ?? "priority-unknown";
 }
 
 function listText(value?: string[]) {
@@ -90,7 +71,7 @@ export function DoctorWorkspace({
   const queryClient = useQueryClient();
   const [assignmentKey, setAssignmentKey] = useState("");
   const [roomId, setRoomId] = useState("");
-  const [sectorId, setSectorId] = useState<Number>(-1);
+  const [sectorId, setSectorId] = useState<number>(-1);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingPriority, setEditingPriority] = useState(false);
   const [correctedPriority, setCorrectedPriority] = useState("");
@@ -414,7 +395,7 @@ export function DoctorWorkspace({
                         <span>Nueva prioridad</span>
                         <select value={correctedPriority} onChange={(event) => setCorrectedPriority(event.target.value)}>
                           <option value="">Seleccionar</option>
-                          {priorities.map((priority) => (
+                          {NIVELES_GRAVEDAD_BOT.map((priority) => (
                             <option key={priority} value={priority} disabled={priority === pretriage.data.prioridadPreliminar}>
                               {priorityLabel(priority)}
                             </option>
