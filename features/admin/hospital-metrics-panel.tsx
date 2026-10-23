@@ -184,7 +184,8 @@ export function HospitalMetricsPanel({
           <div className="panel-heading">
             <div>
               <h2 id="metricas-consulta" tabIndex={-1}>Consultar período</h2>
-              <p>Desde debe ser anterior a hoy; hasta puede ser hoy o anterior. Ambas fechas son obligatorias.</p>
+              <p>La fecha &apos;<strong>desde</strong>&apos; debe ser anterior a hoy. </p>
+              <p>&apos;<strong>hasta</strong>&apos; puede ser hoy o anterior. Ambas fechas son obligatorias.</p>
             </div>
           </div>
           <form className="metrics-form" onSubmit={(evento) => void enviarConsulta(evento)} noValidate>

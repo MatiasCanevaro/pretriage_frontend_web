@@ -4,7 +4,7 @@
 
 - [x] 1.1 Con el backend corriendo, exportar `http://localhost:8080/v3/api-docs` a `contracts/pretriage-openapi.json` (patrón de `docs/backend-contract.md#Refresh-the-snapshot`) y verificar que el archivo parsea como JSON y contiene la ruta `/api/admin/hospitales/{hospitalId}/metricas` con sus schemas `MetricasHospitalResponse`, `DistribucionNivelItem` y `SerieDiariaItem`
 - [x] 1.2 Ejecutar `npm run contracts:generate` y verificar que `contracts/pretriage-api.d.ts` incluye los tres schemas nuevos y que `npm run typecheck` sigue pasando
-- [ ] 1.3 Con un admin válido en sesión, verificar en vivo contra el backend: rechazo para un hospital ajeno (403 con `exigirAdminHospital`), `desde > hasta` (forma y mensaje del 400), techo de extensión de rango, y que `serieDiaria` cubre el rango completo inclusive con días-cero; registrar los hallazgos en `docs/backend-contract.md`
+- [x] 1.3 Con un admin válido en sesión, verificar en vivo contra el backend: rechazo para un hospital ajeno (403 con `exigirAdminHospital`), `desde > hasta` (forma y mensaje del 400), techo de extensión de rango, y que `serieDiaria` cubre el rango completo inclusive con días-cero; registrar los hallazgos en `docs/backend-contract.md`
 - [x] 1.4 Actualizar `docs/backend-contract.md`: snapshot date, SHA-256, tamaño de paths/schemas y nueva sección "Metrics contract" con ruta, params, reglas de autorización observadas y forma de respuesta
 
 ## 2. Módulo compartido de niveles de gravedad
@@ -16,7 +16,7 @@
 ## 3. BFF de lectura de métricas
 
 - [x] 3.1 Crear `app/api/staff/admin/metricas/route.ts` con `GET`: validar solo la forma con zod (`hospitalId` entero seguro positivo; `desde`/`hasta` presentes con formato `yyyy-MM-dd`), reenviar por `backendRequest` a `/api/admin/hospitales/{hospitalId}/metricas?desde&hasta` y mapear errores con `apiErrorResponse` (401 de sesión, `BackendApiError` del resto, y texto propio para el 504 sin "borrador")
-- [ ] 3.2 Verificar con `npm run dev` y peticiones PowerShell: sin sesión devuelve 401; con params faltantes o malformados devuelve 400 con el mensaje del BFF; una consulta con reglas violadas que alcanza al backend devuelve su 400 descriptivo (visible como aviso en la vista); con un admin válido y un rango válido devuelve el JSON de métricas sin exponer bearer tokens en la respuesta
+- [x] 3.2 Verificar con `npm run dev` y peticiones PowerShell: sin sesión devuelve 401; con params faltantes o malformados devuelve 400 con el mensaje del BFF; una consulta con reglas violadas que alcanza al backend devuelve su 400 descriptivo (visible como aviso en la vista); con un admin válido y un rango válido devuelve el JSON de métricas sin exponer bearer tokens en la respuesta
 
 ## 4. Página y vista de métricas
 
@@ -33,7 +33,7 @@
 
 - [x] 5.1 Agregar "Métricas" como link real en la sidebar del módulo admin (visible desde `/admin/hospital`), y en la página de métricas un `sectionNavigation` con link de vuelta "Administración" + anclas in-page (Resumen, Distribuciones, Serie diaria) con `aria-current="location"` correcto en cada página; verificar navegación por teclado y los dos estados activos de la sidebar
 - [x] 5.2 Actualizar `docs/development.md`: nueva ruta de métricas, convención del sidebar admin (link real + anclas) y cómo verificar la vista; verificar que la doc coincide con la implementación
-- [ ] 5.3 Pasada completa final: `npm run typecheck`, `npm run lint`, `npm run build`, Next DevTools MCP `get_errors` en `/admin/hospital/metricas` y `/admin/hospital`, y recorrido manual de los escenarios del spec (hospital faltante con mensaje, acceso ajeno, carga limpia, consulta válida, recarga con params y formulario precargado, deeplink con params inválidos en rojo, errores de fechas, error del backend, reconsulta horaria con `hasta` = hoy, cacheo de rango cerrado, pendiente bloquea el envío)
+- [x] 5.3 Pasada completa final: `npm run typecheck`, `npm run lint`, `npm run build`, Next DevTools MCP `get_errors` en `/admin/hospital/metricas` y `/admin/hospital`, y recorrido manual de los escenarios del spec (hospital faltante con mensaje, acceso ajeno, carga limpia, consulta válida, recarga con params y formulario precargado, deeplink con params inválidos en rojo, errores de fechas, error del backend, reconsulta horaria con `hasta` = hoy, cacheo de rango cerrado, pendiente bloquea el envío)
 
 ## Verification notes
 
