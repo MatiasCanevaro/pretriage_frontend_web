@@ -8,6 +8,7 @@ import { useForm, useWatch } from "react-hook-form";
 import type { HospitalRole } from "@/lib/staff-context";
 import { StaffShell } from "@/components/staff-shell";
 import { apiGet } from "@/lib/api/client";
+import { DistribucionVerticalGrafico, SerieVerticalGrafico } from "./hospital-metrics-charts";
 import { HospitalMetricsNavigation } from "./hospital-metrics-navigation";
 import {
   ayerIso,
@@ -87,6 +88,9 @@ export function HospitalMetricsPanel({
 }) {
   const router = useRouter();
   const [hoy, setHoy] = useState(hoyInicial);
+  // La orientación es local a cada sección: no vive en la URL ni en la query.
+  const [vistaDistribuciones, setVistaDistribuciones] = useState<"horizontal" | "vertical">("horizontal");
+  const [vistaSerie, setVistaSerie] = useState<"horizontal" | "vertical">("horizontal");
 
   // El servidor y el navegador pueden estar en husos distintos o cruzar la
   // medianoche: tras hidratar se adopta la fecha local del navegador.
@@ -98,6 +102,8 @@ export function HospitalMetricsPanel({
   }, []);
 
   const conParametros = Boolean(desdeUrl || hastaUrl);
+  // Remonta los gráficos al cambiar el rango consultado para limpiar la selección.
+  const claveRango = `${desdeUrl}|${hastaUrl}`;
   const erroresUrl = useMemo(
     () => (conParametros ? validarRangoFechas(desdeUrl, hastaUrl, hoy) : {}),
     [conParametros, desdeUrl, hastaUrl, hoy],
@@ -213,7 +219,7 @@ export function HospitalMetricsPanel({
               />
               <span id="metricas-hasta-error" className="field-error">{errorHasta ?? ""}</span>
             </label>
-            <button className="button" type="submit" disabled={enPendiente}>
+            <button className="button button-primary" type="submit" disabled={enPendiente}>
               Consultar
             </button>
           </form>
@@ -280,12 +286,24 @@ export function HospitalMetricsPanel({
             </section>
 
             <section className="panel" aria-labelledby="metricas-distribucion">
-              <div className="panel-heading">
+              <div className="panel-heading metrics-section-heading">
                 <div>
                   <h2 id="metricas-distribucion" tabIndex={-1}>Distribuciones</h2>
                   <p>Casos por gravedad asignada por el bot y revisada por el médico.</p>
                 </div>
+                <button
+                  type="button"
+                  className="button button-secondary metrics-view-toggle"
+                  onClick={() =>
+                    setVistaDistribuciones((actual) => (actual === "horizontal" ? "vertical" : "horizontal"))
+                  }
+                >
+                  {vistaDistribuciones === "horizontal"
+                    ? "Cambiar vista a vertical"
+                    : "Cambiar vista a horizontal"}
+                </button>
               </div>
+              {vistaDistribuciones === "horizontal" ? (
               <div className="metrics-columns">
                 <div
                   className="metrics-table-wrap"
@@ -312,7 +330,7 @@ export function HospitalMetricsPanel({
                         <td className="metrics-bar-cell">
                           <div className="metrics-bar" aria-hidden="true">
                             <div
-                              className={`metrics-bar-fill ${fila.clase}`}
+                              className={`metrics-bar-fill metrics-fill ${fila.clase}`}
                               style={{ width: `${formatoPorcentajeEntero(fila.porcentaje) ?? 0}%` }}
                             />
                           </div>
@@ -347,7 +365,7 @@ export function HospitalMetricsPanel({
                         <td className="metrics-bar-cell">
                           <div className="metrics-bar" aria-hidden="true">
                             <div
-                              className={`metrics-bar-fill ${fila.clase}`}
+                              className={`metrics-bar-fill metrics-fill ${fila.clase}`}
                               style={{ width: `${formatoPorcentajeEntero(fila.porcentaje) ?? 0}%` }}
                             />
                           </div>
@@ -358,16 +376,44 @@ export function HospitalMetricsPanel({
                   </table>
                 </div>
               </div>
+              ) : (
+                <div className="metrics-columns">
+                  <DistribucionVerticalGrafico
+                    key={`distribucion-bot-${claveRango}`}
+                    titulo="Gravedad asignada por el bot"
+                    filas={bot}
+                  />
+                  <DistribucionVerticalGrafico
+                    key={`distribucion-medico-${claveRango}`}
+                    titulo="Gravedad revisada por el médico"
+                    filas={medico}
+                  />
+                </div>
+              )}
             </section>
 
             <section className="panel" aria-labelledby="metricas-serie">
-              <div className="panel-heading">
+              <div className="panel-heading metrics-section-heading">
                 <div>
                   <h2 id="metricas-serie" tabIndex={-1}>Serie diaria</h2>
                   <p>Ingresados y atendidos por día, incluidos los días sin atenciones.</p>
                 </div>
+                {serie.length ? (
+                  <button
+                    type="button"
+                    className="button button-secondary metrics-view-toggle"
+                    onClick={() =>
+                      setVistaSerie((actual) => (actual === "horizontal" ? "vertical" : "horizontal"))
+                    }
+                  >
+                    {vistaSerie === "horizontal"
+                      ? "Cambiar vista a vertical"
+                      : "Cambiar vista a horizontal"}
+                  </button>
+                ) : null}
               </div>
               {serie.length ? (
+                vistaSerie === "horizontal" ? (
                 <div
                   className="metrics-table-wrap"
                   role="region"
@@ -409,6 +455,9 @@ export function HospitalMetricsPanel({
                   </tbody>
                   </table>
                 </div>
+                ) : (
+                  <SerieVerticalGrafico key={`serie-${claveRango}`} serie={serie} />
+                )
               ) : (
                 <p className="metrics-empty-note">El período consultado no reportó días de serie.</p>
               )}

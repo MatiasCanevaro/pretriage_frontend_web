@@ -87,15 +87,35 @@ closed ranges are cached. Date rules (`desde` < today, `hasta` <= today,
 inline errors under each field without querying. Backend business-rule
 rejections surface as a dismissible-free `notice-error` with the backend's
 message. Metric levels come from the shared module `lib/severity.ts` (also
-used by reception and doctor workspaces).
+used by reception and doctor workspaces). Distribution bars use the solid
+severity palette via `metrics-fill`; the priority chips in reception and doctor
+keep their soft backgrounds.
+
+Distribuciones and Serie diaria each have an independent
+`Cambiar vista a vertical` / `Cambiar vista a horizontal` control. The initial
+view is horizontal, with the accessible table and horizontal bars. The vertical
+view removes the table and renders an interactive column chart: each
+distribution bar and each day group is a button with `aria-pressed`, its
+accessible name includes the associated values, and a persistent `aria-live`
+detail panel shows severity/cases/percentage or
+date/ingresados/atendidos/espera. Selecting the same bar again clears the
+selection and the initial instruction reappears. Orientation is local state:
+switching views does not change the URL or refetch metrics, each section toggles
+on its own, the chosen orientation survives a new query, and the charts remount
+on a range change so any previous selection is cleared. Long series scroll
+horizontally; the empty series hides the orientation control.
 
 Verify with `npm run dev` and a valid `ADMIN_HOSPITAL` account: open
 `/admin/hospital/metricas` (message without `hospitalId`, redirect for a
 foreign `hospitalId`), consult a first range with data, reload the URL and
 check the form preload, enter `desde = today` or an inverted range and check
 the inline errors, and confirm `npm run typecheck`, `npm run lint`,
-`npm run build` pass. See `docs/backend-contract.md` for the live backend
-checks still pending.
+`npm run build` pass. For the graph views, toggle each section independently
+and confirm the URL and the Network panel show no new request, toggle back,
+select a distribution bar and a day group with mouse and keyboard (Enter or
+Space), reselect to clear the detail, check a zero level and a zero-value day,
+an empty series, a long range with horizontal scroll, and the mobile layout.
+See `docs/backend-contract.md` for the live backend checks still pending.
 
 
 The shared staff header shows “Cambiar hospital” only when `/api/staff/me` returns

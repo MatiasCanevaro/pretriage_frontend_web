@@ -32,11 +32,15 @@ Un administrador con rol `ADMIN_HOSPITAL` DEBE (MUST) poder acceder a las métri
 
 ### Requirement: Consulta de métricas por período con calendario
 
-El sistema DEBE (MUST) presentar un formulario de calendario nativo con dos fechas obligatorias: `desde` y `hasta`. El `desde` DEBE ser estrictamente anterior a hoy, el `hasta` DEBE ser hoy o anterior, y el `hasta` DEBE ser mayor o igual que el `desde`. Cuando los campos del formulario o los parámetros de la URL violen esas reglas o presenten valores malformados, el sistema DEBE (MUST) mostrar los errores en rojo debajo del campo correspondiente y no DEBE consultar. El backend es la autoridad final: si una consulta inválida lo alcanza de todos modos, el sistema DEBE mostrar su 400 con mensaje descriptivo como aviso y no inventar métricas. Mientras una consulta está en curso, el formulario completo (botón y envío por Enter incluidos) DEBE quedar bloqueado para nuevos envíos.
+El sistema DEBE (MUST) presentar un formulario de calendario nativo con dos fechas obligatorias: `desde` y `hasta`. El `desde` DEBE ser estrictamente anterior a hoy, el `hasta` DEBE ser hoy o anterior, y el `hasta` DEBE ser mayor o igual que el `desde`. Cuando los campos del formulario o los parámetros de la URL violen esas reglas o presenten valores malformados, el sistema DEBE (MUST) mostrar los errores en rojo debajo del campo correspondiente y no DEBE consultar. El backend es la autoridad final: si una consulta inválida lo alcanza de todos modos, el sistema DEBE mostrar su 400 con mensaje descriptivo como aviso y no inventar métricas. Mientras una consulta está en curso, el formulario completo (botón y envío por Enter incluidos) DEBE quedar bloqueado para nuevos envíos. El botón `Consultar` DEBE (MUST) usar el estilo de acción primaria del sistema, con fondo azul y texto claro, consistente con los demás botones primarios de la aplicación.
 
 #### Scenario: Consulta de un rango válido
 - **WHEN** el admin selecciona `desde` y `hasta` que cumplen las reglas y consulta
 - **THEN** el sistema muestra las métricas del hospital para ese rango inclusive
+
+#### Scenario: Acción primaria de consulta
+- **WHEN** el admin visualiza el formulario de consulta
+- **THEN** el botón Consultar se presenta como la acción primaria del sistema, con fondo azul y texto claro, consistente con el resto de la aplicación
 
 #### Scenario: Fecha inicial en el futuro o el día de hoy
 - **WHEN** el admin selecciona `desde` igual a hoy o posterior
@@ -112,27 +116,47 @@ Para el rango consultado, el sistema DEBE (MUST) mostrar: la cantidad de pacient
 
 ### Requirement: Distribución por gravedad
 
-El sistema DEBE (MUST) mostrar la distribución de pacientes según nivel de gravedad en dos vistas: la asignada por el bot (los cinco niveles de la tabla de Manchester) y la revisada por el médico, en gráfico de barras acompañado de sus conteos y porcentajes (no solo los números). La distribución del médico DEBE mostrar además los pacientes sin revisión (`SIN_REVISION`), que DEBE quedar siempre como última fila porque no es un nivel de gravedad; la del bot no DEBE inventar categoría. Los niveles fuera del catálogo conocido no DEBEN presentarse. Las filas conocidas DEBEN mantenerse en orden de gravedad.
+El sistema DEBE (MUST) mostrar la distribución de pacientes según nivel de gravedad en dos vistas: la asignada por el bot (los cinco niveles de la tabla de Manchester) y la revisada por el médico, con sus conteos y porcentajes. La distribución del médico DEBE mostrar además los pacientes sin revisión (`SIN_REVISION`), que DEBE quedar siempre al final (última fila en la tabla o última barra en el gráfico) porque no es un nivel de gravedad; la del bot no DEBE inventar categoría. Los niveles fuera del catálogo conocido no DEBEN presentarse. Las categorías conocidas DEBEN mantenerse en orden de gravedad. Las barras DEBEN usar colores sólidos de la paleta de gravedad existente, con contraste suficiente sobre el fondo; no DEBEN reutilizar los fondos suaves de los chips de prioridad. En la vista horizontal, la distribución DEBE presentarse como tabla accesible con una barra horizontal por fila. En la vista vertical, DEBE presentarse como un gráfico de columnas interactivo sin tabla, donde cada barra DEBE ser seleccionable y mostrar el detalle definido en el requisito de selección de barras.
 
-#### Scenario: Distribuciones presentes
-- **WHEN** el backend responde la distribución del período
-- **THEN** la vista muestra la distribución del bot en gráfico de barras con sus cinco niveles en orden de gravedad y la del médico con la fila `SIN_REVISION` al final, con sus conteos y porcentajes
+#### Scenario: Distribuciones presentes en vista horizontal
+- **WHEN** el backend responde la distribución del período y la vista está en horizontal
+- **THEN** la vista muestra la distribución del bot en tabla con sus cinco niveles en orden de gravedad y la del médico con la fila `SIN_REVISION` al final, con sus conteos, porcentajes y barras horizontales
+
+#### Scenario: Distribución en vista vertical
+- **WHEN** el admin elige la vista vertical en Distribuciones
+- **THEN** cada distribución se presenta como un gráfico de columnas por nivel, sin tabla, con barras seleccionables
+
+#### Scenario: Colores sólidos de las barras
+- **WHEN** la vista muestra las distribuciones en cualquier orientación
+- **THEN** cada barra usa el color sólido de su nivel de gravedad, con contraste suficiente sobre el fondo, sin el fondo suave de los chips de prioridad
 
 #### Scenario: Período sin pacientes en algún nivel
 - **WHEN** un nivel no registra pacientes en el rango
-- **THEN** la vista lo presenta con cantidad 0 y porcentaje 0, sin omitir el nivel del orden de gravedad
+- **THEN** la vista lo presenta con cantidad 0 y porcentaje 0, sin omitir el nivel del orden de gravedad y manteniendo su barra seleccionable en la vista vertical
 
 #### Scenario: Nivel desconocido en la respuesta
 - **WHEN** la distribución del backend incluye un nivel fuera del catálogo conocido
-- **THEN** la vista lo omite de las barras sin inventar categoría ni bloquear el resto de la presentación
+- **THEN** la vista lo omite de la tabla y de las barras sin inventar categoría ni bloquear el resto de la presentación
 
 ### Requirement: Serie diaria del período
 
-El sistema DEBE (MUST) mostrar la serie diaria del rango consultado con ingresados, atendidos y espera promedio por día, presentada como tabla con indicadores de barras por día. Los días sin atenciones DEBEN representarse con su valor cero en conteos y falta de dato en espera. La serie DEBE cubrir ambos extremos del rango consultado (rango inclusivo).
+El sistema DEBE (MUST) mostrar la serie diaria del rango consultado con ingresados, atendidos y espera promedio por día. Los días sin atenciones DEBEN representarse con su valor cero en conteos y falta de dato en espera. La serie DEBE cubrir ambos extremos del rango consultado (rango inclusivo). En la vista horizontal, la serie DEBE presentarse como tabla accesible con un par de barras horizontales por día. En la vista vertical, DEBE presentarse como un gráfico de columnas interactivo sin tabla, con dos barras por día (ingresados y atendidos) y un grupo seleccionable por día; al seleccionar cualquiera de sus barras se DEBEN mostrar fecha, ingresados, atendidos y espera promedio del día. Las etiquetas del eje DEBEN abreviar la fecha y el detalle DEBE mostrar la fecha completa en `dd/MM/yyyy`.
 
-#### Scenario: Serie con días de datos y días vacíos
-- **WHEN** el backend responde la serie diaria de un rango que incluye días con y sin atenciones
-- **THEN** la vista presenta cada día del rango con sus conteos y la espera promedio cuando existe, mostrando "-" los promedios ausentes
+#### Scenario: Serie con días de datos y días vacíos en vista horizontal
+- **WHEN** el backend responde la serie diaria de un rango que incluye días con y sin atenciones y la vista está en horizontal
+- **THEN** la vista presenta cada día del rango en tabla con sus conteos, su par de barras y la espera promedio cuando existe, mostrando "-" los promedios ausentes
+
+#### Scenario: Serie en vista vertical
+- **WHEN** el admin elige la vista vertical en Serie diaria
+- **THEN** la vista presenta un gráfico de columnas por día, sin tabla, con dos barras por día y etiquetas de fecha abreviadas
+
+#### Scenario: Detalle de un día en la serie
+- **WHEN** el admin selecciona cualquiera de las barras de un día en la vista vertical
+- **THEN** el panel de detalle muestra la fecha completa, los ingresados, los atendidos y la espera promedio de ese día
+
+#### Scenario: Serie sin días
+- **WHEN** el backend no reporta días para el rango consultado
+- **THEN** la vista muestra el mensaje de serie vacía y no ofrece la alternancia a la vista vertical
 
 ### Requirement: Comparabilidad entre períodos
 
@@ -141,6 +165,66 @@ Cada consulta DEBE (MUST) presentarse con la misma estructura de indicadores, di
 #### Scenario: Consultas sucesivas de rangos distintos
 - **WHEN** el admin consulta un rango A y luego cambia el rango y consulta un rango B
 - **THEN** ambas presentaciones usan la misma estructura de la vista y la consulta más reciente reemplaza a la anterior
+
+### Requirement: Alternancia de orientación de los gráficos
+
+Cada sección de gráficos (Distribuciones y Serie diaria) DEBE (MUST) ofrecer un control propio para alternar entre la vista horizontal y la vertical. La vista inicial DEBE (MUST) ser horizontal. El control DEBE indicar la orientación de destino: `Cambiar vista a vertical` cuando la vista actual es horizontal y `Cambiar vista a horizontal` cuando es vertical. Las dos secciones DEBEN alternar de forma independiente. Alternar la orientación no DEBE (MUST NOT) modificar la URL, no DEBE disparar una nueva consulta al backend y no DEBE perder los datos ya consultados. La orientación elegida DEBE mantenerse al reconsultar mientras la página permanezca abierta. Al cambiar de orientación se DEBE limpiar la selección de barras.
+
+#### Scenario: Vista inicial horizontal
+- **WHEN** el admin obtiene métricas de un período
+- **THEN** Distribuciones y Serie diaria se presentan inicialmente en la vista horizontal, con sus tablas y barras horizontales
+
+#### Scenario: Cambio a vertical en una sección
+- **WHEN** el admin activa el control de orientación de una sección
+- **THEN** esa sección cambia a la vista vertical, el control pasa a indicar `Cambiar vista a horizontal` y la otra sección conserva su orientación
+
+#### Scenario: Secciones independientes
+- **WHEN** el admin cambia la orientación de Distribuciones y luego la de Serie diaria
+- **THEN** cada sección conserva la orientación elegida de forma independiente
+
+#### Scenario: Alternancia sin reconsulta
+- **WHEN** el admin alterna la orientación de cualquiera de las secciones
+- **THEN** no se modifica la URL, no se dispara una nueva consulta al backend y se conservan los datos ya consultados
+
+#### Scenario: Conservación de orientación al consultar otro rango
+- **WHEN** el admin consulta un rango nuevo sin recargar la página
+- **THEN** cada sección mantiene la orientación elegida y se limpia la selección de barras
+
+#### Scenario: Limpieza de selección al alternar
+- **WHEN** el admin tiene una barra seleccionada y cambia la orientación de esa sección
+- **THEN** la selección se limpia y la nueva vista se presenta sin detalle activo
+
+### Requirement: Selección y detalle de barras en la vista vertical
+
+En la vista vertical, cada barra de la distribución y cada grupo diario de la serie (con sus dos barras) DEBE (MUST) ser seleccionable con mouse y teclado. Sin una barra seleccionada, el sistema DEBE mostrar un mensaje visible que invite a seleccionar una barra para ver la información detallada. Al seleccionar una barra de distribución, el sistema DEBE mostrar gravedad, casos y porcentaje. Al seleccionar cualquiera de las barras de un día de la serie diaria, el sistema DEBE mostrar fecha, ingresados, atendidos y espera promedio de ese día. La barra o grupo seleccionado DEBE tener un estado visual distinguible y `aria-pressed`; el detalle DEBE anunciarse a lectores de pantalla mediante una región viva. Al volver a seleccionar la misma barra o grupo, la selección DEBE quitarse y el mensaje inicial DEBE reaparecer. Cada barra o grupo DEBE exponer en su nombre accesible los valores asociados, de modo que la información siga disponible sin la tabla. Las barras con valor cero DEBEN seguir siendo seleccionables.
+
+#### Scenario: Mensaje sin selección
+- **WHEN** la vista vertical se muestra sin una barra seleccionada
+- **THEN** aparece un mensaje visible que invita a seleccionar una barra para ver la información detallada
+
+#### Scenario: Detalle de una barra de distribución
+- **WHEN** el admin selecciona una barra de gravedad en la vista vertical
+- **THEN** el panel de detalle muestra la gravedad, la cantidad de casos y el porcentaje de esa barra
+
+#### Scenario: Detalle de un día de la serie
+- **WHEN** el admin selecciona cualquiera de las barras de un día en la vista vertical de la serie
+- **THEN** el panel de detalle muestra la fecha completa, los ingresados, los atendidos y la espera promedio de ese día
+
+#### Scenario: Selección por teclado
+- **WHEN** el admin navega con teclado hasta una barra o grupo y presiona Enter o Espacio
+- **THEN** la barra o grupo queda seleccionado, se muestra su detalle y el foco permanece visible
+
+#### Scenario: Deselección
+- **WHEN** el admin vuelve a seleccionar la barra o grupo que ya estaba seleccionado
+- **THEN** la selección se quita, el estado visual vuelve a no seleccionado y reaparece el mensaje inicial
+
+#### Scenario: Barra con valor cero
+- **WHEN** una barra tiene valor cero en la vista vertical
+- **THEN** la barra o su grupo sigue siendo seleccionable y el detalle muestra el valor cero o la falta de dato correspondiente
+
+#### Scenario: Nombre accesible con valores
+- **WHEN** un lector de pantalla recorre una barra o grupo de la vista vertical
+- **THEN** el nombre accesible incluye los valores asociados a esa barra o día, además de la indicación de que puede seleccionarse para ver el detalle
 
 ### Requirement: Transporte seguro y privacidad de los datos
 

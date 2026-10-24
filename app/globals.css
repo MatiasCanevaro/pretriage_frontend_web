@@ -2040,6 +2040,16 @@ textarea:focus-visible {
   display: block;
 }
 
+.metrics-section-heading {
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.metrics-view-toggle {
+  flex-shrink: 0;
+}
+
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -2191,6 +2201,206 @@ textarea:focus-visible {
 .priority-neutral {
   background: #eef2f7;
   color: #42516a;
+}
+
+/* Relleno sólido exclusivo de las barras de métricas. Los chips de prioridad
+   de recepción y médico conservan sus fondos suaves. */
+.metrics-fill.priority-critical {
+  background: var(--red);
+}
+
+.metrics-fill.priority-urgent {
+  background: var(--amber);
+}
+
+.metrics-fill.priority-normal {
+  background: var(--blue);
+}
+
+.metrics-fill.priority-low {
+  background: var(--green);
+}
+
+.metrics-fill.priority-neutral {
+  background: var(--muted);
+}
+
+/* Gráficos verticales interactivos de métricas */
+.metrics-chart {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.metrics-chart-title {
+  margin: 0;
+  color: var(--muted);
+  font-size: .73rem;
+  font-weight: 650;
+}
+
+.metrics-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  color: var(--muted);
+  font-size: .72rem;
+}
+
+.metrics-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metrics-chart-swatch {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+}
+
+.metrics-chart-scroll {
+  min-width: 0;
+  overflow-x: auto;
+  padding: 3px 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.metrics-chart-scroll:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.metrics-vchart {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  min-height: 232px;
+}
+
+.metrics-vbar {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 76px;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 5px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: center;
+}
+
+.metrics-vchart-series .metrics-vbar {
+  flex: 0 0 64px;
+  min-width: 64px;
+}
+
+.metrics-vbar:hover {
+  background: #f8fafd;
+}
+
+.metrics-vbar-selected,
+.metrics-vbar[aria-pressed="true"] {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.metrics-vbar:focus-visible {
+  outline: 3px solid rgba(23, 105, 224, .28);
+  outline-offset: 1px;
+}
+
+.metrics-vbar-plot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 160px;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.metrics-vbar-track,
+.metrics-vbar-pair {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.metrics-vbar-track .metrics-vbar-fill {
+  width: 100%;
+}
+
+.metrics-vbar-pair {
+  gap: 3px;
+}
+
+.metrics-vbar-pair .metrics-vbar-fill {
+  width: 44%;
+}
+
+.metrics-vbar-fill {
+  min-height: 3px;
+  border-radius: 5px 5px 2px 2px;
+}
+
+.metrics-vbar-label {
+  font-size: .68rem;
+  font-weight: 650;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.metrics-vbar-value {
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+.metrics-chart-detail {
+  min-height: 68px;
+  padding: 10px 12px;
+  border: 1px solid var(--soft-line);
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.metrics-chart-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.metrics-chart-detail-title {
+  margin: 0 0 6px;
+  font-size: .85rem;
+  font-weight: 650;
+}
+
+.metrics-chart-detail-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  margin: 0;
+}
+
+.metrics-chart-detail-grid > div {
+  display: flex;
+  gap: 6px;
+  font-size: .78rem;
+}
+
+.metrics-chart-detail-grid dt {
+  color: var(--muted);
+}
+
+.metrics-chart-detail-grid dd {
+  margin: 0;
+  font-weight: 650;
 }
 
 .metrics-empty {
@@ -2348,6 +2558,30 @@ textarea:focus-visible {
 
   .metrics-kpi strong {
     font-size: 1.2rem;
+  }
+
+  .metrics-section-heading {
+    align-items: stretch;
+  }
+
+  .metrics-view-toggle {
+    width: 100%;
+  }
+
+  .metrics-vchart {
+    min-height: 210px;
+  }
+
+  .metrics-vbar {
+    min-width: 68px;
+  }
+
+  .metrics-vbar-plot {
+    height: 142px;
+  }
+
+  .metrics-chart-detail-grid {
+    gap: 4px 14px;
   }
 
   .summary-list div {

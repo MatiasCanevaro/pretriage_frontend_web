@@ -62,6 +62,12 @@ export function formatoFechaIso(valor?: string | null) {
   return `${dia}/${mes}/${anio}`;
 }
 
+/** Fecha serial yyyy-MM-dd -> dd/MM para las etiquetas de los ejes. */
+export function formatoFechaCorta(valor?: string | null) {
+  const completa = formatoFechaIso(valor);
+  return completa === "-" ? completa : completa.slice(0, 5);
+}
+
 /** Valida forma yyyy-MM-dd y fecha de calendario real (rechaza 30-02, etc.). */
 export function fechaIsoValida(valor?: string | null): boolean {
   if (typeof valor !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
@@ -147,7 +153,7 @@ export function esRangoDeHoy(hasta?: string, hoy = hoyIso()) {
   return Boolean(hasta && fechaIsoValida(hasta) && hasta === hoy);
 }
 
-type FilaDistribucion = {
+export type FilaDistribucion = {
   nivel: NivelGravedad;
   etiqueta: string;
   clase: string;
