@@ -20,20 +20,17 @@ export class BackendApiError extends Error {
 
 function safeMessage(payload: unknown, fallback: string) {
   let candidate: string | null = null;
-  if (
-    payload &&
-    typeof payload === "object" &&
-    "message" in payload &&
-    typeof payload.message === "string"
-  ) {
-    candidate = payload.message;
-  } else if (
-    payload &&
-    typeof payload === "object" &&
-    "error" in payload &&
-    typeof payload.error === "string"
-  ) {
-    candidate = payload.error;
+  if (payload && typeof payload === "object") {
+    if ("message" in payload && typeof payload.message === "string") {
+      candidate = payload.message;
+    } else if ("error" in payload && typeof payload.error === "string") {
+      candidate = payload.error;
+    } else {
+      candidate =
+        Object.values(payload).find(
+          (value): value is string => typeof value === "string",
+        ) ?? null;
+    }
   }
 
   const message = candidate?.trim();

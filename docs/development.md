@@ -144,6 +144,27 @@ The public `/restablecer-contrasena` flow uses the server-side
 change. The one-time token and passwords remain only in component memory while
 the page is open; they are never stored in browser storage or added to a URL.
 
+## Authenticated password change
+
+`/cuenta/contrasena` is a standalone protected page for every staff role,
+including platform admins. It asks for the current password, the new password,
+and its repetition; the client mirrors the backend strength rules (8–32 code
+points, uppercase, lowercase, digit or special, different from the current one)
+and blocks submission before consuming an attempt. The three-attempt/24-hour
+lock notice is always visible.
+
+The form sends `{ contraseniaActual, contraseniaNueva }` to
+`POST /api/staff/account/password`, which forwards to backend
+`POST /api/auth/cambio-contrasenia/actual` with the session bearer. Passwords
+stay in memory: they are never written to storage, URLs, logs, or analytics. On
+success the BFF clears the access, refresh, and renewal cookies in the same
+response and the client replaces the history entry with
+`/login?cambio=exito`, where login shows the success notice. A `423` disables
+the form for the current view; a `401` clears the session and redirects. The
+entry link lives in the staff header and the platform-admin header. See
+`docs/backend-contract.md` for the error shapes and the Auth0 revocation
+limitation.
+
 This remains an explicitly temporary Password Realm integration. See
 `docs/authentication-hardening-plan.md` before considering it production-ready.
 
