@@ -13,6 +13,19 @@ export type Room = Omit<Sector, "id"> & {
   sectorNombre: string | null;
 };
 export type HospitalConfiguration = { especialidades: Specialty[]; salas: Room[]; sectores: Sector[] };
+export type MedicalSession = {
+  id: number;
+  medicoId: number;
+  medicoNombre: string;
+  estado: "ACTIVA" | "PAUSADA" | "FINALIZADA";
+  sectorId: number;
+  sectorNombre: string;
+  salaId: number | null;
+  salaNombre: string | null;
+  codigoEspecialidad: string;
+  nombreEspecialidad: string;
+  fechaHoraInicio: string;
+};
 type NamedSpecialty = { nombre: string; especialidadId: number };
 export type ConfigurationOperation =
   | { operation: "enableSpecialty"; specialtyId: number }

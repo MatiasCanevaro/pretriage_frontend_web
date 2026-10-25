@@ -1,13 +1,101 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import styles from "./hospital-configuration-panel.module.css";
-import type { ConfigurationOperation, HospitalConfiguration, Room, Sector, Specialty } from "./hospital-configuration";
+import type { ConfigurationOperation, HospitalConfiguration, MedicalSession, Room, Sector, Specialty } from "./hospital-configuration";
 
 type Configure = (operation: ConfigurationOperation, onSuccess?: () => void, onError?: (error: Error) => void) => void;
 type Confirmation =
   | { kind: "sector"; nombre: string; especialidadId: number; especialidadNombre: string }
   | { kind: "specialty"; especialidadId: number; especialidadNombre: string };
+
+type SectorSessionsProps = {
+  hospitalId: number;
+  sector: Sector;
+  load: (sectorId: number) => Promise<MedicalSession[]>;
+  close: (sectorId: number, sessionId: number) => Promise<MedicalSession>;
+  refreshAfterClose: () => Promise<void>;
+};
+
+function SectorSessions({ hospitalId, sector, load, close, refreshAfterClose }: SectorSessionsProps) {
+  const queryClient = useQueryClient();
+  const queryKey = ["admin-sector-sessions", hospitalId, sector.id];
+  const sessionsQuery = useQuery({ queryKey, queryFn: () => load(sector.id) });
+  const [selected, setSelected] = useState<MedicalSession | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const closeMutation = useMutation({
+    mutationFn: ({ sectorId, sessionId }: { sectorId: number; sessionId: number }) => close(sectorId, sessionId),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey }),
+        refreshAfterClose(),
+      ]);
+      dialogRef.current?.close();
+      setSelected(null);
+      window.setTimeout(() => triggerRef.current?.focus(), 0);
+    },
+  });
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (selected && !dialog.open) {
+      dialog.showModal();
+      dialog.querySelector<HTMLButtonElement>("[data-session-cancel]")?.focus();
+    } else if (!selected && dialog.open) {
+      dialog.close();
+    }
+  }, [selected]);
+
+  function cancel() {
+    if (closeMutation.isPending) return;
+    dialogRef.current?.close();
+    setSelected(null);
+    closeMutation.reset();
+    window.setTimeout(() => triggerRef.current?.focus(), 0);
+  }
+
+  function confirmClose() {
+    if (!selected || closeMutation.isPending) return;
+    closeMutation.mutate({ sectorId: sector.id, sessionId: selected.id });
+  }
+
+  return <div className="form-panel" aria-label={`Sesiones médicas de ${sector.nombre}`}>
+    <h4>Sesiones médicas</h4>
+    {sessionsQuery.isFetching ? <p role="status">Cargando sesiones del sector…</p> : null}
+    {sessionsQuery.error ? <p className="notice notice-error" role="alert">{sessionsQuery.error.message}</p> : null}
+    {sessionsQuery.data?.length === 0 ? <p className="notice notice-info">Este sector no tiene sesiones activas o pausadas.</p> : null}
+    {sessionsQuery.data?.map((session) => <div className="record-row" key={session.id}>
+      <div><strong>{session.medicoNombre}</strong><span>{session.salaNombre ?? "Sin consultorio"} · {session.nombreEspecialidad} · {session.estado} · Inicio {new Date(session.fechaHoraInicio).toLocaleString("es-AR")}</span></div>
+      {session.estado !== "FINALIZADA" ? <button
+        className="button button-danger-ghost"
+        type="button"
+        disabled={closeMutation.isPending || sessionsQuery.isFetching}
+        onClick={(event) => { triggerRef.current = event.currentTarget; closeMutation.reset(); setSelected(session); }}
+      >Finalizar sesión</button> : null}
+    </div>)}
+    <dialog ref={dialogRef} className={styles.dialog} onCancel={(event) => { event.preventDefault(); cancel(); }} aria-labelledby={`close-session-title-${sector.id}`}>
+      {selected ? <div className={styles.dialogContent}>
+        <h2 id={`close-session-title-${sector.id}`}>Finalizar sesión médica</h2>
+        <dl className={styles.summary}>
+          <div><dt>Médico</dt><dd>{selected.medicoNombre}</dd></div>
+          <div><dt>Consultorio</dt><dd>{selected.salaNombre ?? "Sin consultorio"}</dd></div>
+          <div><dt>Sector</dt><dd>{selected.sectorNombre}</dd></div>
+          <div><dt>Estado actual</dt><dd>{selected.estado}</dd></div>
+        </dl>
+        <p className="notice notice-info">La sesión quedará en el historial y se liberará el consultorio.</p>
+        {closeMutation.error ? <p className="notice notice-error" role="alert">No se pudo finalizar la sesión. {closeMutation.error.message}</p> : null}
+        {closeMutation.isPending ? <p role="status">Finalizando la sesión y actualizando la información…</p> : null}
+        <div className={styles.actions}>
+          <button type="button" className="button button-secondary" data-session-cancel disabled={closeMutation.isPending} onClick={cancel}>Volver</button>
+          <button type="button" className="button button-danger-ghost" disabled={closeMutation.isPending} onClick={confirmClose}>Confirmar cierre</button>
+        </div>
+      </div> : null}
+    </dialog>
+  </div>;
+}
 
 function nameFrom(form: HTMLFormElement, field: string) {
   const input = form.elements.namedItem(field) as HTMLInputElement;
@@ -64,7 +152,7 @@ function RoomForm({ room, sector, pending, specialtyEnabled, configure }: { room
   );
 }
 
-function SectorCard({ sector, rooms, specialties, pending, configure }: { sector: Sector; rooms: Room[]; specialties: Specialty[]; pending: boolean; configure: Configure }) {
+function SectorCard({ hospitalId, sector, rooms, specialties, pending, configure, loadSectorSessions, closeMedicalSession, refreshAfterSessionClose }: { hospitalId: number; sector: Sector; rooms: Room[]; specialties: Specialty[]; pending: boolean; configure: Configure; loadSectorSessions: SectorSessionsProps["load"]; closeMedicalSession: SectorSessionsProps["close"]; refreshAfterSessionClose: SectorSessionsProps["refreshAfterClose"] }) {
   const specialtyEnabled = specialties.some((item) => item.id === sector.especialidadId && item.habilitada);
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -105,17 +193,19 @@ function SectorCard({ sector, rooms, specialties, pending, configure }: { sector
           <button className="button button-danger-ghost" type="button" disabled={pending} onClick={remove}>Eliminar sector</button>
         </div>
       </form>
+      <p className="notice notice-info">Si el sector tiene historial, podés desactivarlo para dejar de usarlo. Cerrar sus sesiones conserva el historial y no habilita su eliminación física.</p>
       <h4>Salas de {sector.nombre}</h4>
       {!sector.activa ? <p className="notice notice-warning">El sector está inactivo y no participa en la asignación de nuevos pacientes.</p> : null}
       {!specialtyEnabled ? <p className="notice notice-warning">Habilitá la especialidad del sector para crear, guardar o activar salas.</p> : null}
       {rooms.length === 0 ? <p className="notice notice-info">Este sector todavía no tiene salas.</p> : null}
       {rooms.map((room) => <RoomForm key={`${room.id}:${room.nombre}:${room.especialidadId}:${room.activa}`} room={room} sector={sector} pending={pending} specialtyEnabled={specialtyEnabled} configure={configure} />)}
       <RoomForm sector={sector} pending={pending} specialtyEnabled={specialtyEnabled} configure={configure} />
+      <SectorSessions hospitalId={hospitalId} sector={sector} load={loadSectorSessions} close={closeMedicalSession} refreshAfterClose={refreshAfterSessionClose} />
     </section>
   );
 }
 
-export function HospitalConfigurationPanel({ configuration, pending, error, configure }: { configuration?: HospitalConfiguration; pending: boolean; error: Error | null; configure: Configure }) {
+export function HospitalConfigurationPanel({ hospitalId, configuration, pending, error, configure, loadSectorSessions, closeMedicalSession, refreshAfterSessionClose }: { hospitalId: number; configuration?: HospitalConfiguration; pending: boolean; error: Error | null; configure: Configure; loadSectorSessions: SectorSessionsProps["load"]; closeMedicalSession: SectorSessionsProps["close"]; refreshAfterSessionClose: SectorSessionsProps["refreshAfterClose"] }) {
   const specialties = configuration?.especialidades ?? [];
   const sectors = configuration?.sectores ?? [];
   const rooms = configuration?.salas ?? [];
@@ -265,7 +355,7 @@ export function HospitalConfigurationPanel({ configuration, pending, error, conf
         <button ref={createButtonRef} className="button button-primary" type="submit" disabled={disabled || enabled.length === 0}>Crear sector</button>
       </form>
       {!unavailable && sectors.length === 0 ? <p className="notice notice-info">Todavía no hay sectores. Creá uno para agregar sus salas.</p> : null}
-      {sectors.map((sector) => <SectorCard key={sector.id} sector={sector} rooms={rooms.filter((room) => room.sectorId === sector.id)} specialties={specialties} pending={disabled} configure={configure} />)}
+      {sectors.map((sector) => <SectorCard key={sector.id} hospitalId={hospitalId} sector={sector} rooms={rooms.filter((room) => room.sectorId === sector.id)} specialties={specialties} pending={disabled} configure={configure} loadSectorSessions={loadSectorSessions} closeMedicalSession={closeMedicalSession} refreshAfterSessionClose={refreshAfterSessionClose} />)}
       {unassignedRooms.length > 0 ? <div className="form-panel"><h3>Salas sin sector disponible</h3><p className="notice notice-warning">Estas salas necesitan una asignación de sector para poder administrarlas. Solicitá la regularización de su configuración.</p>{unassignedRooms.map((room) => <div className="record-row" key={room.id}><strong>{room.nombre}</strong><span>{room.especialidadNombre} · {room.activa ? "Activa" : "Inactiva"}</span></div>)}</div> : null}
       <dialog ref={confirmationDialogRef} className={styles.dialog} onCancel={(event) => { event.preventDefault(); closeConfirmationDialog(); }} onKeyDown={(event) => {
         if (event.key !== "Tab") return;

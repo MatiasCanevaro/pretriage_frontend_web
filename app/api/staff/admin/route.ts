@@ -73,6 +73,17 @@ export async function POST(request: Request) {
         await backendRequest(`${base}/configuracion/sectores/${sectorId}`, { method: "DELETE" });
         return new NextResponse(null, { status: 204 });
       }
+      case "sectorSessions": {
+        const sectorId = id(body.sectorId, "sectorId");
+        return NextResponse.json(await backendRequest(`${base}/configuracion/sectores/${sectorId}/sesiones`));
+      }
+      case "closeMedicalSession": {
+        const sectorId = id(body.sectorId, "sectorId");
+        const sessionId = id(body.sessionId, "sessionId");
+        return NextResponse.json(await backendRequest(`${base}/configuracion/sectores/${sectorId}/sesiones/${sessionId}/cerrar`, {
+          method: "POST",
+        }));
+      }
       case "createRoom": {
         const sectorId = id(body.sectorId, "sectorId");
         return NextResponse.json(await backendRequest(`${base}/configuracion/sectores/${sectorId}/salas`, {
