@@ -1,37 +1,31 @@
 import { z } from "zod";
 import type { ReceptionTriageForm } from "@/lib/api/types";
 
-export function formatBirthDateInput(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 8);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+// La fecha de nacimiento se edita con un <input type="date" /> nativo,
+// por lo que el formulario trabaja siempre en formato ISO (AAAA-MM-DD),
+// que es el mismo formato que espera el backend.
+export function obtenerHoyIso() {
+  const hoy = new Date();
+  const anio = hoy.getFullYear();
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+  const dia = String(hoy.getDate()).padStart(2, "0");
+  return `${anio}-${mes}-${dia}`;
 }
 
-export function birthDateToDisplay(value?: string) {
-  const match = value?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return match ? `${match[3]}/${match[2]}/${match[1]}` : formatBirthDateInput(value ?? "");
-}
-
-export function birthDateToIso(value: string) {
-  const [day, month, year] = value.split("/");
-  return `${year}-${month}-${day}`;
-}
-
-function validPastBirthDate(value: string) {
-  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (!match) return false;
-  const day = Number(match[1]);
-  const month = Number(match[2]);
-  const year = Number(match[3]);
-  const candidate = new Date(year, month - 1, day);
-  const valid = candidate.getFullYear() === year
-    && candidate.getMonth() === month - 1
-    && candidate.getDate() === day;
-  if (!valid) return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return candidate < today;
+function esFechaNacimientoValida(valor: string) {
+  const coincidencia = valor.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!coincidencia) return false;
+  const anio = Number(coincidencia[1]);
+  const mes = Number(coincidencia[2]);
+  const dia = Number(coincidencia[3]);
+  const candidata = new Date(anio, mes - 1, dia);
+  const esReal = candidata.getFullYear() === anio
+    && candidata.getMonth() === mes - 1
+    && candidata.getDate() === dia;
+  if (!esReal) return false;
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  return candidata < hoy;
 }
 
 export const dniSchema = z.object({
@@ -46,8 +40,8 @@ export const patientSchema = z.object({
   nombre: z.string().trim().min(1, "Ingresá el nombre."),
   apellido: z.string().trim().min(1, "Ingresá el apellido."),
   fechaNacimiento: z.string().refine(
-    validPastBirthDate,
-    "Ingresá una fecha válida en formato dd/mm/aaaa y anterior a hoy.",
+    esFechaNacimientoValida,
+    "Elegí una fecha válida anterior a hoy.",
   ),
   generoBiologico: z.enum(["MASCULINO", "FEMENINO", "X"]),
   telefono: z

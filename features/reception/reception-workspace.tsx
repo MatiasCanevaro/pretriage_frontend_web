@@ -8,6 +8,7 @@ import { SearchableCombobox } from "@/components/searchable-combobox";
 import { StaffShell } from "@/components/staff-shell";
 import argentinaLocations from "@/lib/geo/argentina-locations.json";
 import { apiClient, ClientApiError } from "@/lib/api/client";
+import { nivelGravedadLabel } from "@/lib/severity";
 import type {
   CreateReceptionAdmission,
   ReceptionAdmission,
@@ -20,10 +21,8 @@ import type { HospitalRole } from "@/lib/staff-context";
 import { ReceptionCoverageStep } from "@/features/reception/reception-coverage-step";
 import {
   clinicalSchema,
-  birthDateToDisplay,
-  birthDateToIso,
   emptyClinicalForm,
-  formatBirthDateInput,
+  obtenerHoyIso,
   patientSchema,
   toTriageRequest,
   type ClinicalFormValues,
@@ -64,13 +63,7 @@ function draftKey(id: number) {
 }
 
 function priorityLabel(priority?: string) {
-  return ({
-    RIESGO_VITAL_INMEDIATO: "Riesgo vital inmediato",
-    MUY_URGENTE: "Muy urgente",
-    URGENTE: "Urgente",
-    NORMAL: "Normal",
-    NO_URGENTE: "No urgente",
-  }[priority ?? ""] ?? "Pendiente");
+  return nivelGravedadLabel(priority) ?? "Pendiente";
 }
 
 function activeAttentionLabel(state?: ReceptionPatient["estadoAtencionEnCurso"]) {
@@ -152,6 +145,7 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles, 
     )?.cities ?? [],
     [selectedProvince],
   );
+  const fechaMaxima = useMemo(() => obtenerHoyIso(), []);
   const dniForm = useForm<{ dni: string }>({ defaultValues: { dni: "" } });
 
   useEffect(() => {
@@ -182,7 +176,7 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles, 
       patientForm.reset({
         dni: variables.dni,
         nombre: found.nombre ?? "", apellido: found.apellido ?? "",
-        fechaNacimiento: birthDateToDisplay(found.fechaNacimiento),
+        fechaNacimiento: found.fechaNacimiento ?? "",
         generoBiologico: found.generoBiologico ?? "X",
         telefono: found.telefono ?? "",
         correoElectronico: found.correoElectronico ?? "",
@@ -273,13 +267,12 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles, 
     }
   }
 
-  function submitPatient(values: PatientFormValues) {
+  function submitPatient(valores: PatientFormValues) {
     if (!session?.id || patient?.atencionEnCurso) return;
     createAdmission.mutate({
-      sesionId: session.id, ...values,
-      fechaNacimiento: birthDateToIso(values.fechaNacimiento),
-      correoElectronico: values.correoElectronico || undefined,
-      piso: values.piso || undefined,
+      sesionId: session.id, ...valores,
+      correoElectronico: valores.correoElectronico || undefined,
+      piso: valores.piso || undefined,
     });
   }
 
@@ -412,7 +405,7 @@ export function ReceptionWorkspace({ userName, hospitalId, hospitalName, roles, 
             <label className="field"><span>Especialidad</span><select {...patientForm.register("codigoEspecialidad")}><option value="">Seleccionar</option>{specialties.map((item) => <option key={item.codigo} value={item.codigo}>{item.nombre}</option>)}</select><FieldError message={patientForm.formState.errors.codigoEspecialidad?.message} /></label>
             <label className="field"><span>Nombre</span><input {...patientForm.register("nombre")} /><FieldError message={patientForm.formState.errors.nombre?.message} /></label>
             <label className="field"><span>Apellido</span><input {...patientForm.register("apellido")} /><FieldError message={patientForm.formState.errors.apellido?.message} /></label>
-            <label className="field"><span>Fecha de nacimiento</span><Controller control={patientForm.control} name="fechaNacimiento" render={({ field }) => <input ref={field.ref} name={field.name} inputMode="numeric" maxLength={10} placeholder="dd/mm/aaaa" value={field.value} onBlur={field.onBlur} onChange={(event) => field.onChange(formatBirthDateInput(event.target.value))} />} /><FieldError message={patientForm.formState.errors.fechaNacimiento?.message} /></label>
+            <label className="field"><span>Fecha de nacimiento</span><input type="date" max={fechaMaxima} {...patientForm.register("fechaNacimiento")} /><FieldError message={patientForm.formState.errors.fechaNacimiento?.message} /></label>
             <label className="field"><span>Género biológico</span><select {...patientForm.register("generoBiologico")}><option value="FEMENINO">Femenino</option><option value="MASCULINO">Masculino</option><option value="X">X / No especificado</option></select></label>
             <label className="field"><span>Teléfono</span><input {...patientForm.register("telefono")} /><FieldError message={patientForm.formState.errors.telefono?.message} /></label>
             <label className="field"><span>Correo electrónico (opcional)</span><input type="email" {...patientForm.register("correoElectronico")} /><FieldError message={patientForm.formState.errors.correoElectronico?.message} /></label>

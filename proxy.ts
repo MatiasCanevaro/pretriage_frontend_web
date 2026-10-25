@@ -44,27 +44,51 @@ function sessionExpiration(request: NextRequest, accessToken?: string) {
   return jwtExpiresAt ?? storedExpiresAt;
 }
 
+function aplicarCabecerasSinCache(respuesta: NextResponse) {
+  // Evita que el navegador guarde pantallas con datos sensibles y las
+  // restaure con la flecha atrás después de cerrar sesión.
+  respuesta.headers.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, private",
+  );
+  respuesta.headers.set("Pragma", "no-cache");
+  respuesta.headers.set("Expires", "0");
+  return respuesta;
+}
+
+function respuestaSiguienteSinCache() {
+  return aplicarCabecerasSinCache(NextResponse.next());
+}
+
 function unauthenticated(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/api/")) {
-    return NextResponse.json(
-      { message: "La sesión expiró.", status: 401 },
-      { status: 401 },
+    return aplicarCabecerasSinCache(
+      NextResponse.json(
+        { message: "La sesión expiró.", status: 401 },
+        { status: 401 },
+      ),
     );
   }
-  return NextResponse.redirect(new URL("/login", request.url));
+  return aplicarCabecerasSinCache(
+    NextResponse.redirect(new URL("/login", request.url)),
+  );
 }
 
 function refreshUnavailable(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/api/")) {
-    return NextResponse.json(
-      { message: "No pudimos renovar la sesión. Intentá nuevamente.", status: 503 },
-      { status: 503 },
+    return aplicarCabecerasSinCache(
+      NextResponse.json(
+        { message: "No pudimos renovar la sesión. Intentá nuevamente.", status: 503 },
+        { status: 503 },
+      ),
     );
   }
-  return new NextResponse("No pudimos renovar la sesión. Intentá nuevamente.", {
-    status: 503,
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
-  });
+  return aplicarCabecerasSinCache(
+    new NextResponse("No pudimos renovar la sesión. Intentá nuevamente.", {
+      status: 503,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    }),
+  );
 }
 
 function continueWithRotatedSession(
@@ -80,7 +104,7 @@ function continueWithRotatedSession(
   requestHeaders.set("cookie", request.cookies.toString());
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   setSessionCookies(response, tokens, renewAt);
-  return response;
+  return aplicarCabecerasSinCache(response);
 }
 
 export async function proxy(request: NextRequest) {
@@ -91,7 +115,7 @@ export async function proxy(request: NextRequest) {
   const accessTokenUsable = Boolean(accessToken && expiresAt && expiresAt > now);
   const renewalDue = !expiresAt || expiresAt <= now + renewalMarginSeconds;
 
-  if (accessTokenUsable && !renewalDue) return NextResponse.next();
+  if (accessTokenUsable && !renewalDue) return respuestaSiguienteSinCache();
   if (!refreshToken) return unauthenticated(request);
 
   let backendResponse: Response;
@@ -108,7 +132,7 @@ export async function proxy(request: NextRequest) {
     });
   } catch {
     return accessTokenUsable
-      ? NextResponse.next()
+      ? respuestaSiguienteSinCache()
       : refreshUnavailable(request);
   }
 
@@ -119,7 +143,7 @@ export async function proxy(request: NextRequest) {
       return response;
     }
     return accessTokenUsable
-      ? NextResponse.next()
+      ? respuestaSiguienteSinCache()
       : refreshUnavailable(request);
   }
 
@@ -128,7 +152,7 @@ export async function proxy(request: NextRequest) {
   );
   if (!parsed.success) {
     return accessTokenUsable
-      ? NextResponse.next()
+      ? respuestaSiguienteSinCache()
       : refreshUnavailable(request);
   }
 

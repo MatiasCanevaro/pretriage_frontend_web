@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSyncExternalStore } from "react";
 
 const sections = [
@@ -15,19 +16,29 @@ function subscribe(onChange: () => void) {
   return () => window.removeEventListener("hashchange", onChange);
 }
 
-export function HospitalAdminNavigation() {
+export function HospitalAdminNavigation({ hospitalId }: { hospitalId: number }) {
   const hash = useSyncExternalStore(subscribe, () => window.location.hash, () => "");
   const activeId = sections.find((item) => `#${item.id}` === hash)?.id ?? sections[0].id;
 
-  return sections.map(({ id, label }) => (
-    <a
-      key={id}
-      href={`#${id}`}
-      className={`nav-item nav-subitem${activeId === id ? " nav-item-active" : ""}`}
-      aria-current={activeId === id ? "location" : undefined}
-      onClick={() => document.getElementById(id)?.focus({ preventScroll: true })}
-    >
-      <span className="nav-dot" aria-hidden="true" />{label}
-    </a>
-  ));
+  return (
+    <>
+      <Link
+        className="nav-item nav-subitem"
+        href={`/admin/hospital/metricas?hospitalId=${hospitalId}`}
+      >
+        <span className="nav-dot" aria-hidden="true" />Métricas
+      </Link>
+      {sections.map(({ id, label }) => (
+        <a
+          key={id}
+          href={`#${id}`}
+          className={`nav-item nav-subitem${activeId === id ? " nav-item-active" : ""}`}
+          aria-current={activeId === id ? "location" : undefined}
+          onClick={() => document.getElementById(id)?.focus({ preventScroll: true })}
+        >
+          <span className="nav-dot" aria-hidden="true" />{label}
+        </a>
+      ))}
+    </>
+  );
 }

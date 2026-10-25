@@ -30,7 +30,7 @@ Never commit credentials, tokens, or real patient data.
 
 GitHub Actions runs `.github/workflows/ci.yml` for pull requests and pushes to
 `desarrollo` and `main`. The `Frontend CI / verify` check installs the locked
-dependencies with `npm ci`, then runs typecheck, lint, and the production build.
+dependencies with `npm ci`, then runs contract tests, typecheck, lint, and the production build.
 
 Configure `Frontend CI / verify` as a required status check in the branch
 protection rules for `desarrollo` and `main` so a pull request cannot merge while
@@ -60,6 +60,63 @@ creation, configuration, personnel, invitations and audit. Fragment links preser
 the hospital query parameter and unsent form values; the selected destination is
 marked with `aria-current="location"`. There is no placeholder “Inicio” entry.
 Headings accept keyboard focus and leave space for the sticky navigation on mobile.
+
+`/admin/hospital/metricas` is its own route for hospital metrics. Its sidebar
+keeps the same conventions: a real "Métricas" link renders inside the
+administration sidebar on `/admin/hospital`, and the metrics page shows a
+section navigation with a "Administración" back link plus in-page anchors
+(Resumen, Distribuciones, Serie diaria) marked with
+`aria-current="location"` while the corresponding hash is active. The page
+requires the `ADMIN_HOSPITAL` membership of the requested `hospitalId`;
+without `hospitalId` it shows a "choose your hospital" message instead of
+redirecting.
+
+## Hospital metrics view
+
+Admins open `app/admin/hospital/metricas/page.tsx`. The panel in
+`features/admin/hospital-metrics-panel.tsx` queries the reading BFF
+`GET /api/staff/admin/metricas?hospitalId&desde&hasta` (route
+`app/api/staff/admin/metricas/route.ts`), which forwards server-side with the
+session token to `/api/admin/hospitales/{hospitalId}/metricas`. The browser
+never receives bearer tokens. Query state lives in the URL
+(`?hospitalId&desde&hasta`): a fresh load shows the empty state without
+calling the backend; reloading persists the range and preloads the form;
+ranges with `hasta = today` refetch hourly while the page stays open and
+closed ranges are cached. Date rules (`desde` < today, `hasta` <= today,
+`hasta` >= `desde`) are validated in the form and for URL parameters, showing
+inline errors under each field without querying. Backend business-rule
+rejections surface as a dismissible-free `notice-error` with the backend's
+message. Metric levels come from the shared module `lib/severity.ts` (also
+used by reception and doctor workspaces). Distribution bars use the solid
+severity palette via `metrics-fill`; the priority chips in reception and doctor
+keep their soft backgrounds.
+
+Distribuciones and Serie diaria each have an independent
+`Cambiar vista a vertical` / `Cambiar vista a horizontal` control. The initial
+view is horizontal, with the accessible table and horizontal bars. The vertical
+view removes the table and renders an interactive column chart: each
+distribution bar and each day group is a button with `aria-pressed`, its
+accessible name includes the associated values, and a persistent `aria-live`
+detail panel shows severity/cases/percentage or
+date/ingresados/atendidos/espera. Selecting the same bar again clears the
+selection and the initial instruction reappears. Orientation is local state:
+switching views does not change the URL or refetch metrics, each section toggles
+on its own, the chosen orientation survives a new query, and the charts remount
+on a range change so any previous selection is cleared. Long series scroll
+horizontally; the empty series hides the orientation control.
+
+Verify with `npm run dev` and a valid `ADMIN_HOSPITAL` account: open
+`/admin/hospital/metricas` (message without `hospitalId`, redirect for a
+foreign `hospitalId`), consult a first range with data, reload the URL and
+check the form preload, enter `desde = today` or an inverted range and check
+the inline errors, and confirm `npm run typecheck`, `npm run lint`,
+`npm run build` pass. For the graph views, toggle each section independently
+and confirm the URL and the Network panel show no new request, toggle back,
+select a distribution bar and a day group with mouse and keyboard (Enter or
+Space), reselect to clear the detail, check a zero level and a zero-value day,
+an empty series, a long range with horizontal scroll, and the mobile layout.
+See `docs/backend-contract.md` for the live backend checks still pending.
+
 
 The shared staff header shows “Cambiar hospital” only when `/api/staff/me` returns
 more than one distinct active hospital with an available staff module. Multiple

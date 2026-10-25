@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Contract tests
+        run: npm run test:contracts
+
       - name: Typecheck
         run: npm run typecheck
 

@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { BotonCierreSesion } from "@/components/boton-cierre-sesion";
 import { Brand } from "@/components/brand";
+import { GuardiaSesionProtegida } from "@/components/guardia-sesion-protegida";
 import type { StaffMembership } from "@/lib/staff-context";
 import { defaultHospitalRoute } from "@/lib/workspace-routing";
 
@@ -14,6 +16,7 @@ export function WorkspaceSelector({ memberships, accountLabel, platformAdmin }: 
 
   return (
     <main className="public-shell workspace-shell">
+      <GuardiaSesionProtegida />
       <section className="workspace-selector-card">
         <header className="workspace-header">
           <Brand size="large" />
@@ -73,9 +76,7 @@ export function WorkspaceSelector({ memberships, accountLabel, platformAdmin }: 
 
         <footer className="workspace-footer">
           <span>Sesión iniciada como <strong>{accountLabel}</strong></span>
-          <form action="/api/auth/logout" method="post">
-            <button className="workspace-logout" type="submit">Cerrar sesión</button>
-          </form>
+          <BotonCierreSesion clase="workspace-logout" etiqueta="Cerrar sesión" etiquetaEnProceso="Cerrando…" />
         </footer>
       </section>
     </main>

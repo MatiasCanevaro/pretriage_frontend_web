@@ -4,17 +4,88 @@
 - Base URL: `http://localhost:8080`
 - Live OpenAPI: `http://localhost:8080/v3/api-docs`
 - Exported snapshot: `contracts/pretriage-openapi.json`
-- Snapshot date: 2026-09-21
-- Snapshot SHA-256: `edca4ae40774b3ee6b354a8fcd3d59c4ab2ddd6c0025c097ae84998238c03c06`
+- Snapshot date: 2026-10-22
+- Snapshot SHA-256: `7bb7f7e756988f12ce3bc0004995ea0602dc7c6f3dfc19a74ea5dab16e1bdd65`
 - OpenAPI version: 3.1.0
 - API title/version: Pretriage API / v1
-- Snapshot size: 81 paths and 73 schemas
+- Snapshot size: 83 paths and 78 schemas
 
-The snapshot and TypeScript types were refreshed from the running backend after
-the hospital-wide specialty deactivation correction. It includes password recovery
-and sector-scoped room management. The old optional estimated-time range is no
-longer exported; the reception adapter retains read compatibility with that earlier
-response while current responses use `fechaHoraAtencionEstimada`.
+The snapshot and TypeScript types were refreshed from the running backend to
+include the hospital metrics endpoint (`metricas-hospital-controller`). It
+otherwise retains the previous content: password recovery, sector-scoped room
+management, and the hospital-wide specialty deactivation correction. The old
+optional estimated-time range is no longer exported; the reception adapter
+retains read compatibility with that earlier response while current responses
+use `fechaHoraAtencionEstimada`.
+
+## Metrics contract
+
+Snapshot entry: `GET /api/admin/hospitales/{hospitalId}/metricas`.
+
+- Path parameter: `hospitalId` (`integer`, `int64`, required).
+- Query parameters: `desde` and `hasta` (`string` with format `date`,
+  `yyyy-MM-dd`, both required).
+- Tag: `metricas-hospital-controller`, operation `obtenerMetricas`.
+
+Authorization:
+
+- Without a session the backend returns `401` (verified live-offline in this
+  session's export refresh).
+- The backend is expected to enforce `exigirAdminHospital` for the selected
+  hospital and respond `403` to an admin of a different hospital, consistent
+  with every other admin hospital route. Live confirmation with a valid
+  `ADMIN_HOSPITAL` session is still pending and must be recorded here when it
+  is available. The web never sends foreign hospital IDs: its page resolves
+  the hospital from the staff membership context.
+
+Business rules (backend-owned; the web only forwards and displays):
+
+- The backend validates the date range and answers `400` with a descriptive
+  `message` for an inverted range (`desde` > `hasta`), dates in the future
+  relative to today, and the maximum admissible range extension (exact
+  ceiling not confirmed from this machine). The web displays that message as
+  a notice and does not normalize or re-validate these rules locally.
+- `serieDiaria` is expected to cover the complete inclusive range including
+  zero-patient days, per the response contract. Live confirmation pending.
+
+### Verification status of this session
+
+Verified against the local backend while implementing the metrics view:
+
+- Without a session, the reading BFF and its page guard answer `401` /
+  redirect to login; the endpoint itself answers `401` without a bearer token.
+- The BFF validates only the form: missing parameters, a malformed date, or a
+  non-positive `hospitalId` return `400` with its own message ("Revisá el
+  hospital y las fechas indicadas.") without touching the backend.
+- A well-formed query is forwarded with the session's bearer token; the
+  backend's own rejection (observed with a structurally valid but revoked
+  token) passes through as the normalized `401` message. No bearer tokens
+  appear in any response body.
+
+Still pending and to be confirmed live with a valid `ADMIN_HOSPITAL` session:
+
+- `403` for an admin of a different hospital (expected `exigirAdminHospital`).
+- Exact shape and message of the backend `400` for `desde` > `hasta`.
+- The maximum admissible range extension (ceiling).
+- `serieDiaria` coverage of the inclusive range with zero-patient days.
+
+Response schema (`MetricasHospitalResponse`; all fields optional in the
+generated contract, treated as absent = "-" in the UI):
+
+- `hospitalId` (`int64`), `desde`, `hasta` (`date`).
+- Queue and attention KPIs: `ingresaronACola`, `pacientesAtendidos`,
+  `pacientesNoAtendidos` (`int64`).
+- `esperaPromedioMinutos` (`double`); absent when the period had no
+  attentions — the UI shows "-" instead of a fabricated number.
+- `porcentajeAtendidos` (`double`).
+- `distribucionGravedadBot[]` and `distribucionGravedadMedico[]` of
+  `DistribucionNivelItem { nivel: string, cantidad: int64, porcentaje: double }`.
+  The doctor distribution additionally reports `SIN_REVISION`.
+- `pretriageRealizado`, `pretriageNoRealizado` (`int64`) and
+  `porcentajePretriageRealizado` (`double`).
+- `serieDiaria[]` of `SerieDiariaItem { fecha: date, ingresados: int64,
+  atendidos: int64, esperaPromedioMinutos: double }`.
+
 
 The running backend, its source, and the exported OpenAPI are authoritative. Do not pin frontend work to a backend commit and never invent missing contracts.
 
@@ -261,7 +332,7 @@ All configuration operations require `exigirAdminHospital` for the selected hosp
 - Sector session history includes `id`, `medicoId`, `medicoNombre`, `estado`,
   `sectorId`, `sectorNombre`, `salaId`, `salaNombre`, `codigoEspecialidad`,
   `nombreEspecialidad` and `fechaHoraInicio`. The list includes finalized sessions
-  and returns an empty array when the sector has no active or paused sessions.
+  and returns an empty array only when the sector has no session history.
   `salaId` and `salaNombre` are nullable; the UI labels a missing room as
   “Sin consultorio”.
 - Finalizing a session accepts no request body and returns the updated session DTO

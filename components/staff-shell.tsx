@@ -1,4 +1,6 @@
+import { BotonCierreSesion } from "@/components/boton-cierre-sesion";
 import { Brand } from "@/components/brand";
+import { GuardiaSesionProtegida } from "@/components/guardia-sesion-protegida";
 import Link from "next/link";
 import type { HospitalRole } from "@/lib/staff-context";
 
@@ -34,6 +36,7 @@ export function StaffShell({ role, userName, section, sessionLabel, hospitalId, 
     : role === "Médico" ? "MEDICO" : "ADMIN_HOSPITAL";
   return (
     <div className="staff-app">
+      <GuardiaSesionProtegida />
       <header className="topbar">
         <Brand />
         <div className="topbar-account">
@@ -41,7 +44,7 @@ export function StaffShell({ role, userName, section, sessionLabel, hospitalId, 
           <div className="avatar" aria-hidden="true">{userName.charAt(0).toUpperCase()}</div>
           <div><strong>{userName}</strong><span>{hospitalName} · {role}</span></div>
           {canSwitchHospital ? <Link className="logout-link" href="/">Cambiar hospital</Link> : null}
-          <form action="/api/auth/logout" method="post"><button className="logout-link" type="submit">Salir</button></form>
+          <BotonCierreSesion clase="logout-link" etiqueta="Salir" />
         </div>
       </header>
       <aside className={sectionNavigation ? "sidebar sidebar-section-links" : "sidebar"} aria-label="Navegación principal">
