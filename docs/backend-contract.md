@@ -329,14 +329,15 @@ All configuration operations require `exigirAdminHospital` for the selected hosp
   sector does not reactivate those rooms.
 - Deletion also rejects active or paused medical sessions in its rooms. A successful
   deletion removes the sector and its rooms and returns `204`.
-- Sector session history includes `id`, `medicoId`, `medicoNombre`, `estado`,
+- Manageable sector sessions include `id`, `medicoId`, `medicoNombre`, `estado`,
   `sectorId`, `sectorNombre`, `salaId`, `salaNombre`, `codigoEspecialidad`,
-  `nombreEspecialidad` and `fechaHoraInicio`. The list includes finalized sessions
-  and returns an empty array only when the sector has no session history.
+  `nombreEspecialidad` and `fechaHoraInicio`. The list includes only active or paused sessions (`ACTIVA`/`PAUSADA`)
+  and returns an empty array when neither exists in the sector.
   `salaId` and `salaNombre` are nullable; the UI labels a missing room as
   “Sin consultorio”.
 - Finalizing a session accepts no request body and returns the updated session DTO
   with `estado: FINALIZADA`. The operation releases the room while retaining session
+  history in the database; the sector-session listing does not expose that finalized
   history. A `409` conflict is surfaced in the confirmation dialog, which remains
   open so the administrator can read the backend reason. Paused sessions are not offered
   as a separate pause action because pausing does not release the room.

@@ -124,8 +124,9 @@ roles in the same hospital do not enable this action. The admin heading has no
 duplicate “Cambiar espacio” link. Module navigation remains available within the
 current hospital.
 
-Administrators can review current sessions and finalized history from each
-sector card, including inactive sectors. Active and paused sessions can be
+Administrators can review active or paused sessions from each sector card,
+including inactive sectors. Finalized history remains in the backend database and
+is not returned by this listing. Active and paused sessions can be
 finalized after confirmation; the room is released and the session remains in
 history. A 409 response keeps the confirmation open and shows the backend reason.
 Closing a session does not enable physical sector deletion; if a sector has
@@ -206,3 +207,8 @@ npm run georef:update
 The generated `lib/geo/argentina-locations.json` must be committed together with
 the update script. Its source is the public Georef API from Argentina's national
 open-data service.
+
+## Integration verification
+
+See [the October 25 integration record](integration-2026-10-25.md) for the development
+merge, dependency patches, verified commands and the scope of the runtime smoke test.
