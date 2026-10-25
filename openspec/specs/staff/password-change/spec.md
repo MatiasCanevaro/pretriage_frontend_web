@@ -1,10 +1,10 @@
-# Spec Delta
+# staff/password-change Specification
 
 ## Purpose
 
 Permite que un miembro del staff autenticado defina una contraseña nueva desde la web, con validación alineada al backend, manejo del bloqueo por intentos fallidos y cierre de la sesión al completar el cambio.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Acceso autenticado y punto de entrada
 

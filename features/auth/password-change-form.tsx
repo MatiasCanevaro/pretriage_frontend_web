@@ -212,6 +212,14 @@ export function PasswordChangeForm() {
       >
         {pending ? "Guardando…" : "Cambiar contraseña"}
       </button>
+
+      <button 
+        className="button button-secondary" 
+        type="button" 
+        onClick={() => window.location.replace("../")}
+      >
+        Volver
+      </button>
     </form>
   );
 }

@@ -15,8 +15,7 @@ export default async function PasswordChangePage() {
         <p className="eyebrow">Tu cuenta</p>
         <h1>Cambiar contraseña</h1>
         <p className="muted">
-          Confirmá tu contraseña actual y elegí una nueva para seguir usando la
-          plataforma.
+          Confirmá tu contraseña actual y elegí una nueva.
         </p>
         <PasswordChangeForm />
       </section>
