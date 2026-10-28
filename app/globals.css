@@ -493,6 +493,49 @@ textarea:focus-visible {
   margin-top: 4px;
 }
 
+.password-change-card {
+  width: min(100%, 540px);
+}
+
+.password-change-form {
+  gap: 20px;
+}
+
+.password-rules {
+  display: grid;
+  gap: 6px;
+  margin: 3px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: .72rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.login-success-notice {
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.password-rule {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  color: var(--muted);
+}
+
+.password-rule-icon {
+  flex: none;
+  width: 1em;
+  color: #9aa8ba;
+  text-align: center;
+}
+
+.password-rule-valid,
+.password-rule-valid .password-rule-icon {
+  color: var(--green);
+}
+
 .privacy-note {
   margin: 22px 0 0;
   color: var(--muted);

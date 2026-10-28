@@ -165,6 +165,7 @@ export const config = {
     "/admin/:path*",
     "/recepcion/:path*",
     "/medico/:path*",
+    "/cuenta/:path*",
     "/api/staff/:path*",
   ],
 };

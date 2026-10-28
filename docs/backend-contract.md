@@ -144,6 +144,49 @@ token; invalid, expired, or already-used tokens return `400`. Password change
 accepts only `token` and `nuevaContrasenia` and consumes the token after success.
 The web adds password confirmation locally and never sends it to the backend.
 
+### Authenticated staff password change
+
+H0019 uses `POST /api/auth/cambio-contrasenia/actual` with a bearer JWT
+(`CambiarContraseniaAutenticadaRequest`: `contraseniaActual` and
+`contraseniaNueva`, both required non-empty strings). The staff web never calls
+it from the browser: `POST /api/staff/account/password` validates both fields
+with Zod (non-empty, at most 256 characters), forwards them with the session
+bearer, and returns the backend payload. Its responses are `no-store` and
+passwords are never logged, stored, or added to a URL.
+
+Web behavior and real error shapes:
+
+- `200`: the backend returns a field map such as `{ message: "..." }`. The BFF
+  clears the access, refresh, and renewal cookies in the same response, so the
+  refresh token is no longer available to the browser. The UI then replaces the
+  history entry with `/login?cambio=exito`, where the login page shows the
+  success notice and asks for the new password.
+- `400`: service errors use `{ error }` (wrong current password, new password
+  equal to the current one, or an Auth0 rejection). Bean Validation errors use
+  a field map such as `{ contraseniaNueva: "La contraseña debe..." }`; the shared
+  transport surfaces the first string value instead of the generic fallback.
+  The form stays usable and only clears the current-password field.
+- `423`: `{ error }` with the active lock and remaining minutes. The form shows
+  the message and disables its inputs and submit for that view. A page reload
+  re-enables the form visually, but the backend still answers `423` until the
+  lock expires.
+- `401`: the BFF also clears the session cookies before responding, and the UI
+  navigates to `/login`.
+
+Rules mirrored by the browser before consuming an attempt: 8–32 Unicode code
+points, at least one uppercase letter (`\p{Lu}`), one lowercase letter
+(`\p{Ll}`), one digit (`\p{Nd}`) or special character (anything that is not a
+letter, digit, or Java ASCII whitespace), and different from the current
+password. The backend remains the authority.
+
+Attempts and the 3-failure/24-hour lock are backend-owned. The attempt that
+reaches the limit returns `400` while already setting the lock; the next attempt
+returns `423`, and the client does not infer or count attempts locally.
+Successful changes discard the local cookies but do not revoke the Auth0 grant:
+the backend has no logout/revocation endpoint, so an already exfiltrated refresh
+token could remain valid until expiry or rotation. This is a documented
+limitation, not a blocker for H0019.
+
 ## Reception contract
 
 The current backend supports the complete assisted-admission lifecycle:

@@ -44,6 +44,7 @@ export function StaffShell({ role, userName, section, sessionLabel, hospitalId, 
           <div className="avatar" aria-hidden="true">{userName.charAt(0).toUpperCase()}</div>
           <div><strong>{userName}</strong><span>{hospitalName} · {role}</span></div>
           {canSwitchHospital ? <Link className="logout-link" href="/">Cambiar hospital</Link> : null}
+          <Link className="logout-link" href="/cuenta/contrasena">Cambiar contraseña</Link>
           <BotonCierreSesion clase="logout-link" etiqueta="Salir" />
         </div>
       </header>

@@ -5,8 +5,15 @@ import { getSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cambio?: string | string[] }>;
+}) {
   if (await getSession()) redirect("/");
+
+  const cambio = (await searchParams).cambio;
+  const passwordChanged = cambio === "exito";
 
   return (
     <main className="public-shell">
@@ -17,6 +24,15 @@ export default async function LoginPage() {
         <p className="muted">
           Usá las credenciales asignadas para recepción o atención médica.
         </p>
+        {passwordChanged ? (
+          <div
+            className="notice notice-success login-success-notice"
+            role="status"
+          >
+            Tu contraseña se actualizó correctamente. Ingresá con la nueva
+            contraseña.
+          </div>
+        ) : null}
         <LoginForm />
       </section>
     </main>
