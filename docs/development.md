@@ -16,7 +16,7 @@ Requirements: Node.js 20+, npm, and the backend at http://localhost:8080.
 - features/: workflows, adapters, schemas, and queries.
 - lib/api/: privacy-safe transport and normalized errors.
 - contracts/: OpenAPI snapshot and generated transport code.
-- proxy.ts: protected-route guard and server-side access-token renewal.
+- middleware.ts: protected-route guard and server-side access-token renewal (Node.js runtime).
 - app/api/staff/: privacy-safe BFF routes. Browser code never receives bearer tokens.
 - app/api/auth/: provisional login/logout against the backend.
 
@@ -141,7 +141,7 @@ stores the returned access token, rotating refresh token, and backend-provided
 renewal time in HttpOnly, SameSite=Lax session cookies. Browser JavaScript never
 receives the tokens and credentials are not persisted.
 
-Before protected pages and `/api/staff/*` handlers run, `proxy.ts` renews access
+Before protected pages and `/api/staff/*` handlers run, `middleware.ts` renews access
 through backend `POST /api/renovar` when the current token has at most 60 seconds
 remaining. Every successful renewal atomically replaces both cookies because the
 backend rotates refresh tokens. An invalid refresh clears the complete session;

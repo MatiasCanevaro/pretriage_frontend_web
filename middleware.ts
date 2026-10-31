@@ -107,7 +107,7 @@ function continueWithRotatedSession(
   return aplicarCabecerasSinCache(response);
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const refreshToken = request.cookies.get(SESSION_REFRESH_COOKIE_NAME)?.value;
   const expiresAt = sessionExpiration(request, accessToken);
@@ -160,6 +160,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
+  runtime: "nodejs",
   matcher: [
     "/",
     "/admin/:path*",

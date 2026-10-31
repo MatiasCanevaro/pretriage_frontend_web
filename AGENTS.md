@@ -1,10 +1,11 @@
 <!-- BEGIN:nextjs-agent-rules -->
 
-## This is NOT the Next.js you know
+## Version-matched Next.js guidance
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+This project uses Next.js 15.5.28. Read the official Next.js 15 documentation
+(https://nextjs.org/docs/15) before changing framework APIs. Use bundled guides
+under node_modules/next/dist/docs/ when present; this directory and Next.js 16's
+generated agent guidance are not guaranteed to exist in Next.js 15.
 
 <!-- END:nextjs-agent-rules -->
 
@@ -30,16 +31,13 @@ Read docs/development.md and docs/backend-contract.md before changing code.
 
 ## Next.js DevTools MCP
 
-- This project uses Next.js 16 and configures the official `next-devtools-mcp` server in `.mcp.json`.
-- Start the development server with `npm run dev`; the MCP server discovers the running Next.js instance and communicates with its built-in `/_next/mcp` endpoint.
-- Use the MCP runtime tools before and after UI or runtime changes. At minimum, call `get_errors`; use `get_routes`, `get_page_metadata`, `get_project_metadata`, and `get_logs` when relevant.
-- Treat the running MCP result as the source of truth for current build, configuration, browser runtime, and hydration errors. A production build alone does not expose browser-session errors.
-- If `get_errors` reports a stale-module or unavailable-module-factory error, hard-refresh the affected browser page or clear its browser cache, then query `get_errors` again before changing application code.
-- Read `node_modules/next/dist/docs/01-app/02-guides/mcp.md` for the version-matched MCP contract instead of relying on remembered Next.js behavior.
+- This project uses Next.js 15.5.28. `.mcp.json` retains the `next-devtools-mcp` utility, but the built-in `/_next/mcp` endpoint exists only in Next.js 16 and later. Runtime MCP inspection is unavailable with this pinned version.
+- Do not require `get_errors` or other Next.js MCP runtime tools. Use typecheck, lint, contract tests and production build; validate browser behavior in an Amplify preview.
+- Read version-matched documentation before changing framework APIs. If `node_modules/next/dist/docs/` is absent in this Next.js 15 installation, use the official Next.js 15 documentation.
 
 ## Verification
 
-- Next.js DevTools MCP `get_errors` returns no configuration, build, or runtime errors.
-- npm run typecheck
-- npm run lint
-- npm run build
+- `npm run test:contracts`
+- `npm run typecheck`
+- `npm run lint`
+- `npm run build`
