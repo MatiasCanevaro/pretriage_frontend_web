@@ -37,11 +37,9 @@ export async function apiClient<T>(
     body: JSON.stringify({ operation, ...payload }),
   });
 
-  const data = (await response.json()) as
-    | T
-    | { message?: string; status?: number };
+  const data = response.status === 204 ? undefined : await response.json();
   if (!response.ok) {
-    const error = data as { message?: string; status?: number };
+    const error = (data ?? {}) as { message?: string; status?: number };
     throw new ClientApiError(
       error.status ?? response.status,
       error.message ?? "No pudimos completar la operación.",

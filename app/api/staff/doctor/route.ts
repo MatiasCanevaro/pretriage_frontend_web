@@ -8,6 +8,7 @@ import type {
   DoctorBootstrap,
   MedicalAttention,
   MedicalRoom,
+  MedicalSector,
   MedicalSession,
   QueueConsultation,
   PriorityReviewRequest,
@@ -44,16 +45,16 @@ export async function POST(request: Request) {
         const specialty =
           typeof body.specialty === "string" ? body.specialty : "";
         return NextResponse.json(
-          await backendRequest<MedicalRoom[]>(
+          await backendRequest<MedicalSector[]>(
             `/api/hospitales/${hospitalId}/sectores?codigoEspecialidad=${encodeURIComponent(specialty)}`,
           ),
         );
       }
       case "rooms": {
         const hospitalId = numberValue(body.hospitalId, "hospitalId");
+        const sectorId = numberValue(body.sectorId, "sectorId");
         const specialty =
           typeof body.specialty === "string" ? body.specialty : "";
-        const sectorId = numberValue(body.sectorId, "sectorId");
         return NextResponse.json(
           await backendRequest<MedicalRoom[]>(
             `/api/hospitales/${hospitalId}/sectores/${sectorId}/salas?codigoEspecialidad=${encodeURIComponent(specialty)}`,

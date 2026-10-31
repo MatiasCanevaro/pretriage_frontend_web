@@ -42,4 +42,3 @@ export function HospitalAdminNavigation({ hospitalId }: { hospitalId: number }) 
     </>
   );
 }
-

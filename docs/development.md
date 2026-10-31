@@ -23,14 +23,14 @@ Requirements: Node.js 20+, npm, and the backend at http://localhost:8080.
 Reception and doctor sessions recover their authoritative state from the backend after a reload.
 An in-attention doctor workspace also refetches the pretriage summary and priority-review state. Finalization stays disabled until that backend-owned review is confirmed or corrected.
 
-Verification: npm run typecheck, npm run lint, npm run build.
+Verification: npm run test:contracts, npm run typecheck, npm run lint, npm run build.
 Never commit credentials, tokens, or real patient data.
 
 ## Continuous integration
 
 GitHub Actions runs `.github/workflows/ci.yml` for pull requests and pushes to
 `desarrollo` and `main`. The `Frontend CI / verify` check installs the locked
-dependencies with `npm ci`, then runs typecheck, lint, and the production build.
+dependencies with `npm ci`, then runs contract tests, typecheck, lint, and the production build.
 
 Configure `Frontend CI / verify` as a required status check in the branch
 protection rules for `desarrollo` and `main` so a pull request cannot merge while
@@ -124,6 +124,15 @@ roles in the same hospital do not enable this action. The admin heading has no
 duplicate “Cambiar espacio” link. Module navigation remains available within the
 current hospital.
 
+Administrators can review active or paused sessions from each sector card,
+including inactive sectors. Finalized history remains in the backend database and
+is not returned by this listing. Active and paused sessions can be
+finalized after confirmation; the room is released and the session remains in
+history. A 409 response keeps the confirmation open and shows the backend reason.
+Closing a session does not enable physical sector deletion; if a sector has
+history, deactivate it to stop using it. Session changes refresh that sector's
+sessions, hospital configuration and audit, and doctor data.
+
 ## Provisional authentication
 
 The login page sends credentials to the server-side route
@@ -172,10 +181,12 @@ This remains an explicitly temporary Password Realm integration. See
 
 Hospital administrators use `/admin/hospital` to enable specialties, create/edit
 sectors (name, specialty and active state), and manage rooms grouped under each
-sector. Room specialty follows the selected sector. Deactivating a sector also
+sector. Doctors select an assigned specialty, an active sector and an active room
+in that sector before starting a session. Room specialty follows the selected sector. Deactivating a sector also
 deactivates its rooms; deleting one requires confirmation because its rooms are
 deleted as well. Mutations use `/api/staff/admin` and reload authoritative
-configuration and audit through TanStack Query.
+configuration and audit through TanStack Query. Use a backend with the
+sector-scoped session contract documented in `docs/backend-contract.md`.
 
 Creating a sector first opens a confirmation dialog with its name and specialty.
 Enabling a hospital specialty also requires confirmation showing its name; cancel
@@ -217,3 +228,8 @@ npm run georef:update
 The generated `lib/geo/argentina-locations.json` must be committed together with
 the update script. Its source is the public Georef API from Argentina's national
 open-data service.
+
+## Integration verification
+
+See [the October 25 integration record](integration-2026-10-25.md) for the development
+merge, dependency patches, verified commands and the scope of the runtime smoke test.

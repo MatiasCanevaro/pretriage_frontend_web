@@ -245,7 +245,8 @@ Reception finalization may invoke the backend AI provider. The backend bounds th
 
 ```http
 GET  /api/medico/asignaciones
-GET  /api/hospitales/{hospitalId}/salas?codigoEspecialidad={codigo}
+GET  /api/hospitales/{hospitalId}/sectores?codigoEspecialidad={codigo}
+GET  /api/hospitales/{hospitalId}/sectores/{sectorId}/salas?codigoEspecialidad={codigo}
 GET  /api/medico/sesiones/actual
 POST /api/medico/sesiones
 POST /api/medico/sesiones/{sesionId}/pausar
@@ -262,6 +263,14 @@ GET  /api/medico/atenciones
 ```
 
 The API supports the complete planned medical-session flow. During `EN_ATENCION`, the frontend retrieves the normalized pretriage summary and requires the doctor to review priority before finalization. `CONFIRMAR` is one click. `CORREGIR` requires a different priority and accepts an optional reason of at most 500 characters. A genuine change is audited; an identical retry is idempotent. The review can be changed while attention remains open, and finalization is rejected with `409` while it is pending.
+
+The doctor selects an assigned specialty, an active hospital sector and an active
+room in that sector before starting a session. Sector and room lists are filtered
+by hospital and specialty. `POST /api/medico/sesiones` requires
+`{ hospitalId, codigoEspecialidad, sectorId, salaId }`; the backend validates
+that the sector and room are active and belong to the selected hospital and
+specialty. The exported OpenAPI snapshot includes these sector-scoped routes and
+the required `sectorId` session field; the backend controller remains authoritative.
 
 ## Doctor blockers
 
@@ -332,6 +341,8 @@ DELETE /api/admin/hospitales/{hospitalId}/configuracion/sectores/{sectorId}
 POST   /api/admin/hospitales/{hospitalId}/configuracion/sectores/{sectorId}/salas
 PUT    /api/admin/hospitales/{hospitalId}/configuracion/sectores/{sectorId}/salas/{salaId}
 PATCH  /api/admin/hospitales/{hospitalId}/configuracion/sectores/{sectorId}/salas/{salaId}/estado
+GET    /api/admin/hospitales/{hospitalId}/configuracion/sectores/{sectorId}/sesiones
+POST   /api/admin/hospitales/{hospitalId}/configuracion/sectores/{sectorId}/sesiones/{sesionId}/cerrar
 ```
 
 Specialties remain a global catalog: hospital administration only enables or
@@ -361,6 +372,18 @@ All configuration operations require `exigirAdminHospital` for the selected hosp
   sector does not reactivate those rooms.
 - Deletion also rejects active or paused medical sessions in its rooms. A successful
   deletion removes the sector and its rooms and returns `204`.
+- Manageable sector sessions include `id`, `medicoId`, `medicoNombre`, `estado`,
+  `sectorId`, `sectorNombre`, `salaId`, `salaNombre`, `codigoEspecialidad`,
+  `nombreEspecialidad` and `fechaHoraInicio`. The list includes only active or paused sessions (`ACTIVA`/`PAUSADA`)
+  and returns an empty array when neither exists in the sector.
+  `salaId` and `salaNombre` are nullable; the UI labels a missing room as
+  “Sin consultorio”.
+- Finalizing a session accepts no request body and returns the updated session DTO
+  with `estado: FINALIZADA`. The operation releases the room while retaining session
+  history in the database; the sector-session listing does not expose that finalized
+  history. A `409` conflict is surfaced in the confirmation dialog, which remains
+  open so the administrator can read the backend reason. Paused sessions are not offered
+  as a separate pause action because pausing does not release the room.
 - The web groups rooms under sectors, derives room specialty from the sector,
   confirms destructive deletion, disables configuration actions while pending and
   refetches configuration/audit after both successful and failed mutations.
